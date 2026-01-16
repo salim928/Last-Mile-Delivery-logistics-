@@ -3,6 +3,7 @@
  */
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import api from './api';
 
 interface Merchant {
   id: number;
@@ -33,9 +34,15 @@ export const useAuthStore = create<AuthState>()(
       isHydrated: false,
       setMerchant: (merchant) => set({ merchant, isAuthenticated: !!merchant }),
       logout: () => {
+        // Clear API token
+        api.logout();
+        // Clear state
         set({ merchant: null, isAuthenticated: false });
+        // Clear any remaining localStorage items
         if (typeof window !== 'undefined') {
           localStorage.removeItem('auth_token');
+          // Clear the persisted auth storage
+          localStorage.removeItem('auth-storage');
         }
       },
       setHydrated: () => set({ isHydrated: true }),

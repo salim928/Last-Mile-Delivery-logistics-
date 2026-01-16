@@ -35,8 +35,10 @@ class ApiClient {
       (error: AxiosError) => {
         if (error.response?.status === 401) {
           this.clearToken();
-          // Only redirect if not already on auth pages
+          // Clear all auth-related storage
           if (typeof window !== 'undefined') {
+            localStorage.removeItem('auth-storage');
+            // Only redirect if not already on auth pages
             const isAuthPage = window.location.pathname.startsWith('/login') || 
                                window.location.pathname.startsWith('/register');
             if (!isAuthPage) {
@@ -111,6 +113,10 @@ class ApiClient {
       new_password: newPassword,
     });
     return response.data;
+  }
+
+  logout() {
+    this.clearToken();
   }
 
   // Orders
