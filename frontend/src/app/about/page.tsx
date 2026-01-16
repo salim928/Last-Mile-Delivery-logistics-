@@ -102,7 +102,7 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
                 <Truck className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-slate-900">Movva</span>
@@ -124,14 +124,14 @@ export default function AboutPage() {
 
       {/* Hero Section */}
       <section className="pt-32 pb-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-indigo-50 to-white" />
-        <div className="absolute top-0 left-1/3 w-[600px] h-[600px] bg-indigo-100/50 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-b from-orange-50 to-white" />
+        <div className="absolute top-0 left-1/3 w-[600px] h-[600px] bg-orange-100/50 rounded-full blur-3xl" />
 
         <div className="relative z-10 max-w-5xl mx-auto px-6 lg:px-10 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-200 text-sm font-medium text-indigo-700 mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50 border border-orange-200 text-sm font-medium text-orange-700 mb-6"
           >
             <Users className="w-4 h-4" />
             About Movva
@@ -201,17 +201,17 @@ export default function AboutPage() {
               viewport={{ once: true }}
               className="relative"
             >
-              <div className="absolute -inset-4 bg-gradient-to-r from-indigo-500/10 to-violet-500/10 rounded-3xl blur-2xl" />
+              <div className="absolute -inset-4 bg-gradient-to-r from-orange-500/10 to-amber-500/10 rounded-3xl blur-2xl" />
               <div className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 text-white">
                 <h3 className="text-xl font-bold mb-6">Our Journey</h3>
                 <div className="space-y-6">
                   {milestones.map((milestone, index) => (
                     <div key={index} className="flex items-start gap-4">
-                      <span className="text-sm font-mono text-indigo-400 w-16 flex-shrink-0">
+                      <span className="text-sm font-mono text-orange-400 w-16 flex-shrink-0">
                         {milestone.year}
                       </span>
-                      <div className="flex-1">
-                        <div className="w-2 h-2 rounded-full bg-indigo-400 mt-2 mb-1" />
+                      <div className="flex-shrink-0">
+                        <div className="w-2 h-2 rounded-full bg-orange-400 mt-2 mb-1" />
                         <p className="text-slate-300">{milestone.event}</p>
                       </div>
                     </div>
@@ -272,17 +272,17 @@ export default function AboutPage() {
                 transition={{ delay: index * 0.1 }}
                 className="bg-white rounded-3xl p-8 border border-slate-200 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 group"
               >
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white text-2xl font-bold mb-6">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white text-2xl font-bold mb-6">
                   {member.image}
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-1">{member.name}</h3>
-                <p className="text-indigo-600 font-medium mb-4">{member.role}</p>
+                <p className="text-orange-600 font-medium mb-4">{member.role}</p>
                 <p className="text-slate-600 leading-relaxed mb-4">{member.bio}</p>
                 <div className="flex gap-3">
-                  <a href="#" className="text-slate-400 hover:text-indigo-600 transition-colors">
+                  <a href="#" className="text-slate-400 hover:text-orange-600 transition-colors">
                     <Linkedin className="w-5 h-5" />
                   </a>
-                  <a href="#" className="text-slate-400 hover:text-indigo-600 transition-colors">
+                  <a href="#" className="text-slate-400 hover:text-orange-600 transition-colors">
                     <Twitter className="w-5 h-5" />
                   </a>
                 </div>
@@ -310,7 +310,7 @@ export default function AboutPage() {
       <section className="py-24">
         <div className="max-w-4xl mx-auto px-6 lg:px-10">
           <div className="relative rounded-3xl overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-600" />
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-600 via-amber-600 to-orange-700" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.2),transparent)]" />
 
             <div className="relative z-10 py-16 px-8 lg:px-16 text-center">
@@ -324,7 +324,7 @@ export default function AboutPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                   href="/careers"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-indigo-600 font-semibold rounded-full hover:bg-slate-100 transition-colors"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-orange-600 font-semibold rounded-full hover:bg-slate-100 transition-colors"
                 >
                   View open roles
                   <ArrowRight className="w-5 h-5" />
