@@ -20,7 +20,7 @@ const plans = [
   {
     name: 'Starter',
     description: 'Perfect for small businesses getting started with delivery optimization.',
-    price: { monthly: 99, annually: 79 },
+    price: { monthly: 999, annually: 799 },
     currency: '₵',
     icon: Rocket,
     gradient: 'from-blue-500 to-cyan-500',
@@ -41,7 +41,7 @@ const plans = [
   {
     name: 'Professional',
     description: 'For growing businesses that need more power and flexibility.',
-    price: { monthly: 299, annually: 249 },
+    price: { monthly: 2999, annually: 2399 },
     currency: '₵',
     icon: Building2,
     gradient: 'from-amber-500 to-orange-500',
@@ -62,7 +62,7 @@ const plans = [
   {
     name: 'Enterprise',
     description: 'Custom solutions for large-scale logistics operations.',
-    price: { monthly: null, annually: null },
+    price: { monthly: 4499, annually: 3599 },
     currency: '₵',
     icon: Crown,
     gradient: 'from-amber-500 to-orange-500',
