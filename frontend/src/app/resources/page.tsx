@@ -26,7 +26,7 @@ const categories = [
     title: 'Documentation',
     description: 'Comprehensive guides to help you get the most out of Movva.',
     icon: Book,
-    gradient: 'from-blue-500 to-cyan-500',
+    gradient: 'from-orange-500 to-amber-500',
     links: [
       { title: 'Getting Started Guide', href: '/docs/getting-started', time: '5 min read' },
       { title: 'API Reference', href: '/docs/api', time: 'Reference' },
@@ -38,7 +38,7 @@ const categories = [
     title: 'Video Tutorials',
     description: 'Step-by-step video guides for visual learners.',
     icon: Video,
-    gradient: 'from-violet-500 to-purple-500',
+    gradient: 'from-orange-600 to-amber-600',
     links: [
       { title: 'Platform Overview', href: '/resources/videos/overview', time: '8 min' },
       { title: 'Route Optimization Deep Dive', href: '/resources/videos/routes', time: '12 min' },
@@ -50,7 +50,7 @@ const categories = [
     title: 'Case Studies',
     description: 'Real-world success stories from Movva customers.',
     icon: FileText,
-    gradient: 'from-emerald-500 to-teal-500',
+    gradient: 'from-amber-500 to-orange-500',
     links: [
       { title: 'QuickMart: 32% Cost Reduction', href: '/resources/case-studies/quickmart', time: 'Case Study' },
       { title: 'FreshBox: Scaling to 1000+ Daily', href: '/resources/case-studies/freshbox', time: 'Case Study' },
@@ -79,7 +79,7 @@ const featuredResources = [
     description: 'Everything you need to know about optimizing deliveries for the Ghanaian market, from traffic patterns to COD management.',
     image: '/images/guide-ghana.jpg',
     href: '/resources/guides/ghana-optimization',
-    gradient: 'from-indigo-600 to-violet-600',
+    gradient: 'from-orange-600 to-amber-600',
   },
   {
     type: 'Webinar',
@@ -114,7 +114,7 @@ export default function ResourcesPage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
                 <Truck className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-slate-900">Movva</span>
@@ -143,7 +143,7 @@ export default function ResourcesPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-200 text-sm font-medium text-indigo-700 mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50 border border-orange-200 text-sm font-medium text-orange-700 mb-6"
           >
             <BookOpen className="w-4 h-4" />
             Resources & Learning
@@ -157,7 +157,7 @@ export default function ResourcesPage() {
           >
             Learn, grow, and
             <br />
-            <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
               deliver better
             </span>
           </motion.h1>
@@ -184,7 +184,7 @@ export default function ResourcesPage() {
               <input
                 type="text"
                 placeholder="Search resources..."
-                className="w-full pl-14 pr-6 py-4 bg-white border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 shadow-lg shadow-slate-200/50"
+                className="w-full pl-14 pr-6 py-4 bg-white border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 shadow-lg shadow-slate-200/50"
               />
             </div>
           </motion.div>
@@ -206,8 +206,8 @@ export default function ResourcesPage() {
                   href={link.href}
                   className="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors group"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-indigo-100 transition-colors">
-                    <link.icon className="w-6 h-6 text-slate-600 group-hover:text-indigo-600 transition-colors" />
+                  <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center group-hover:bg-orange-100 transition-colors">
+                    <link.icon className="w-6 h-6 text-slate-600 group-hover:text-orange-600 transition-colors" />
                   </div>
                   <div>
                     <p className="font-semibold text-slate-900">{link.title}</p>
