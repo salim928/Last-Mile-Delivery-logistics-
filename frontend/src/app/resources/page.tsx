@@ -137,7 +137,7 @@ export default function ResourcesPage() {
       {/* Hero Section */}
       <section className="pt-32 pb-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-white" />
-        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-violet-100/50 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-amber-100/50 rounded-full blur-3xl" />
 
         <div className="relative z-10 max-w-5xl mx-auto px-6 lg:px-10 text-center">
           <motion.div

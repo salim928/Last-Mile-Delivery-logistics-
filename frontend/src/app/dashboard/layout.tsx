@@ -29,11 +29,11 @@ import clsx from 'clsx';
 import FeedbackWidget from '@/components/ui/FeedbackWidget';
 
 const navItems = [
-  { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, color: 'from-blue-500 to-indigo-500' },
+  { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, color: 'from-orange-500 to-amber-500' },
   { href: '/dashboard/orders', label: 'Orders', icon: Package, color: 'from-green-500 to-emerald-500' },
-  { href: '/dashboard/routes', label: 'Routes', icon: Route, color: 'from-purple-500 to-violet-500' },
+  { href: '/dashboard/routes', label: 'Routes', icon: Route, color: 'from-orange-500 to-amber-500' },
   { href: '/dashboard/riders', label: 'Riders', icon: Users, color: 'from-orange-500 to-amber-500' },
-  { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3, color: 'from-indigo-500 to-purple-500' },
+  { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3, color: 'from-orange-500 to-amber-500' },
   { href: '/dashboard/cod', label: 'COD', icon: Wallet, color: 'from-cyan-500 to-teal-500' },
   { href: '/dashboard/reports', label: 'Reports', icon: FileText, color: 'from-pink-500 to-rose-500' },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings, color: 'from-slate-500 to-gray-500' },

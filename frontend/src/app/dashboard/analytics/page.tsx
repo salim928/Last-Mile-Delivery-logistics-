@@ -100,7 +100,7 @@ const MetricCard = ({
     green: 'from-green-500 to-green-600',
     purple: 'from-purple-500 to-purple-600',
     orange: 'from-orange-500 to-orange-600',
-    indigo: 'from-indigo-500 to-indigo-600',
+    amber: 'from-orange-500 to-amber-600',
     pink: 'from-pink-500 to-pink-600',
   };
 
@@ -263,7 +263,7 @@ export default function AnalyticsPage() {
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-            <BarChart3 className="w-7 h-7 text-indigo-600" />
+            <BarChart3 className="w-7 h-7 text-orange-600" />
             Analytics Dashboard
           </h1>
           <p className="text-slate-600 mt-1">

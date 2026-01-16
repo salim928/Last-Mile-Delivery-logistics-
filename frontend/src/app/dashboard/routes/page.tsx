@@ -35,9 +35,9 @@ import api from '@/lib/api';
 
 const statusColors: Record<string, { bg: string; text: string; ring: string }> = {
   draft: { bg: 'from-slate-100 to-gray-100', text: 'text-slate-700', ring: 'ring-slate-200/50' },
-  optimized: { bg: 'from-blue-100 to-indigo-100', text: 'text-blue-700', ring: 'ring-blue-200/50' },
+  optimized: { bg: 'from-orange-100 to-amber-100', text: 'text-orange-700', ring: 'ring-orange-200/50' },
   assigned: { bg: 'from-amber-100 to-yellow-100', text: 'text-amber-700', ring: 'ring-amber-200/50' },
-  in_progress: { bg: 'from-purple-100 to-violet-100', text: 'text-purple-700', ring: 'ring-purple-200/50' },
+  in_progress: { bg: 'from-orange-100 to-amber-100', text: 'text-orange-700', ring: 'ring-orange-200/50' },
   completed: { bg: 'from-green-100 to-emerald-100', text: 'text-green-700', ring: 'ring-green-200/50' },
 };
 
@@ -115,7 +115,7 @@ export default function RoutesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <span className="bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">Routes</span>
+            <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">Routes</span>
             <Sparkles className="w-5 h-5 text-purple-500" />
           </h1>
           <p className="text-slate-600 mt-1">Optimize and manage your delivery routes</p>
@@ -133,7 +133,7 @@ export default function RoutesPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200/60 p-4 shadow-soft">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center shadow-sm">
+            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center shadow-sm">
               <RouteIcon className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -144,7 +144,7 @@ export default function RoutesPage() {
         </div>
         <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200/60 p-4 shadow-soft">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-500 rounded-lg flex items-center justify-center shadow-sm">
+            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center shadow-sm">
               <Zap className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -193,7 +193,7 @@ export default function RoutesPage() {
         </div>
       ) : routes?.length === 0 ? (
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 shadow-soft text-center py-16">
-          <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <RouteIcon className="w-10 h-10 text-purple-500" />
           </div>
           <h3 className="text-xl font-bold text-slate-900 mb-2">No routes yet</h3>
@@ -219,7 +219,7 @@ export default function RoutesPage() {
               {/* Route header */}
               <div className="flex items-start justify-between mb-5">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center shadow-md">
                     <RouteIcon className="w-6 h-6 text-white" />
                   </div>
                   <div>

@@ -233,7 +233,7 @@ export default function SettingsPage() {
           {activeTab === 'profile' && (
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-6 lg:p-8 shadow-soft animate-fade-in">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-md">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-md">
                   <Building2 className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -352,7 +352,7 @@ export default function SettingsPage() {
           {activeTab === 'security' && (
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-6 lg:p-8 shadow-soft animate-fade-in">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-500 rounded-xl flex items-center justify-center shadow-md">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-md">
                   <Shield className="w-6 h-6 text-white" />
                 </div>
                 <div>

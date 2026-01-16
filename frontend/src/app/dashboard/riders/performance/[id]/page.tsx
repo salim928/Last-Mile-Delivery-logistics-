@@ -410,14 +410,14 @@ export default function RiderPerformancePage() {
           label="Total Deliveries"
           value={rider.metrics.totalDeliveries.toLocaleString()}
           subValue={`${rider.metrics.avgDeliveriesPerDay}/day avg`}
-          color="from-blue-500 to-indigo-500"
+          color="from-orange-500 to-amber-500"
         />
         <MetricCard
           icon={Clock}
           label="Avg Delivery Time"
           value={`${rider.metrics.avgDeliveryTime} min`}
           trend={{ value: 8, isPositive: true }}
-          color="from-purple-500 to-violet-500"
+          color="from-orange-500 to-amber-500"
         />
         <MetricCard
           icon={Wallet}

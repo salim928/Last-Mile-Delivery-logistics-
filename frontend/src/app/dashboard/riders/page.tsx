@@ -289,7 +289,7 @@ export default function RidersPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => router.push(`/dashboard/riders/performance/${rider.id}`)}
-                      className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-200 hover:bg-indigo-100 transition-colors text-sm font-medium"
+                      className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-orange-50 text-orange-700 rounded-xl border border-orange-200 hover:bg-orange-100 transition-colors text-sm font-medium"
                     >
                       <BarChart3 className="w-4 h-4" />
                       Performance
