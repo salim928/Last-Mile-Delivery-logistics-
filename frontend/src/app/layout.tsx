@@ -26,8 +26,7 @@ export const metadata: Metadata = {
     telephone: false,
   },
   icons: {
-    icon: '/icon.tsx',
-    apple: '/apple-icon.tsx',
+    icon: '/favicon.ico',
   },
   manifest: '/manifest.json',
   viewport: {
