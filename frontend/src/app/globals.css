@@ -1,0 +1,494 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply antialiased;
+  }
+  
+  html {
+    @apply text-slate-900 scroll-smooth;
+  }
+  
+  body {
+    @apply bg-gradient-to-br from-slate-50 via-white to-slate-100 text-slate-900 min-h-screen;
+  }
+  
+  /* Selection styling */
+  ::selection {
+    @apply bg-navy-200 text-navy-900;
+  }
+}
+
+/* Custom animations for landing page */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(20px);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@layer components {
+  /* Primary Button - Enhanced with gradient and glow */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white 
+           bg-gradient-to-r from-navy-700 to-navy-800 rounded-xl shadow-md
+           hover:from-navy-800 hover:to-navy-900 hover:shadow-lg hover:shadow-navy-800/20
+           focus:outline-none focus:ring-2 focus:ring-navy-500 focus:ring-offset-2 
+           active:scale-[0.98] transition-all duration-200;
+  }
+  
+  /* Success Button */
+  .btn-success {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white 
+           bg-gradient-to-r from-emerald-500 to-green-600 rounded-xl shadow-md
+           hover:from-emerald-600 hover:to-green-700 hover:shadow-lg hover:shadow-green-600/20
+           focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 
+           active:scale-[0.98] transition-all duration-200;
+  }
+  
+  /* Danger Button */
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white 
+           bg-gradient-to-r from-red-500 to-rose-600 rounded-xl shadow-md
+           hover:from-red-600 hover:to-rose-700 hover:shadow-lg hover:shadow-red-600/20
+           focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 
+           active:scale-[0.98] transition-all duration-200;
+  }
+  
+  /* Ghost Button */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 
+           bg-transparent rounded-xl hover:bg-slate-100/80 
+           focus:outline-none focus:ring-2 focus:ring-slate-300 
+           active:scale-[0.98] transition-all duration-200;
+  }
+  
+  /* Secondary Button - Glass effect */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-navy-800 
+           bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl shadow-sm
+           hover:bg-white hover:border-slate-300 hover:shadow-md
+           focus:outline-none focus:ring-2 focus:ring-navy-500/30 
+           active:scale-[0.98] transition-all duration-200;
+  }
+  
+  /* Icon Button */
+  .btn-icon {
+    @apply inline-flex items-center justify-center w-10 h-10 text-slate-500 
+           bg-transparent rounded-xl hover:bg-slate-100 hover:text-slate-700
+           focus:outline-none focus:ring-2 focus:ring-slate-300 
+           active:scale-95 transition-all duration-200;
+  }
+  
+  /* Card - Enhanced with subtle gradients and better shadows */
+  .card {
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-soft border border-slate-200/60 p-6 
+           transition-all duration-300 hover:shadow-medium hover:border-slate-200;
+  }
+  
+  /* Card Hover - For interactive cards */
+  .card-hover {
+    @apply card cursor-pointer hover:-translate-y-0.5 hover:shadow-strong;
+  }
+  
+  /* Glass Card - Frosted glass effect */
+  .card-glass {
+    @apply bg-white/40 backdrop-blur-md rounded-2xl shadow-lg border border-white/50 p-6;
+  }
+  
+  /* Gradient Card - For hero stats */
+  .card-gradient {
+    @apply rounded-2xl p-6 text-white shadow-lg;
+  }
+  
+  .card-gradient-blue {
+    @apply card-gradient bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 shadow-blue-500/25;
+  }
+  
+  .card-gradient-green {
+    @apply card-gradient bg-gradient-to-br from-emerald-500 via-green-500 to-teal-600 shadow-green-500/25;
+  }
+  
+  .card-gradient-purple {
+    @apply card-gradient bg-gradient-to-br from-purple-500 via-violet-500 to-indigo-600 shadow-purple-500/25;
+  }
+  
+  .card-gradient-orange {
+    @apply card-gradient bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-500 shadow-orange-500/25;
+  }
+  
+  .card-gradient-navy {
+    @apply card-gradient bg-gradient-to-br from-navy-700 via-navy-800 to-navy-900 shadow-navy-800/25;
+  }
+  
+  /* KPI Card */
+  .kpi-card {
+    @apply bg-white rounded-2xl shadow-soft border border-slate-200/60 p-6 
+           transition-all duration-300 hover:shadow-medium;
+  }
+  
+  /* Input - Enhanced with better focus states */
+  .input {
+    @apply w-full px-4 py-3 text-sm bg-white border border-slate-200 rounded-xl 
+           placeholder:text-slate-400 
+           focus:outline-none focus:ring-2 focus:ring-navy-500/30 focus:border-navy-400 
+           hover:border-slate-300
+           transition-all duration-200;
+  }
+  
+  /* Input with icon */
+  .input-with-icon {
+    @apply input pl-11;
+  }
+  
+  /* Dropdown/Select */
+  .select {
+    @apply w-full px-4 py-3 text-sm bg-white border border-slate-200 rounded-xl 
+           focus:outline-none focus:ring-2 focus:ring-navy-500/30 focus:border-navy-400 
+           hover:border-slate-300
+           transition-all duration-200 appearance-none cursor-pointer;
+  }
+  
+  /* Label */
+  .label {
+    @apply block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2;
+  }
+  
+  /* Badge - Base */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full;
+  }
+  
+  /* Status Badges - Enhanced with gradients */
+  .badge-success {
+    @apply badge bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 ring-1 ring-green-200/50;
+  }
+  
+  .badge-warning {
+    @apply badge bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700 ring-1 ring-amber-200/50;
+  }
+  
+  .badge-error {
+    @apply badge bg-gradient-to-r from-red-100 to-rose-100 text-red-700 ring-1 ring-red-200/50;
+  }
+  
+  .badge-info {
+    @apply badge bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 ring-1 ring-blue-200/50;
+  }
+  
+  .badge-neutral {
+    @apply badge bg-gradient-to-r from-slate-100 to-gray-100 text-slate-700 ring-1 ring-slate-200/50;
+  }
+  
+  .badge-purple {
+    @apply badge bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700 ring-1 ring-purple-200/50;
+  }
+  
+  /* Pulse dot for live indicators */
+  .pulse-dot {
+    @apply relative flex h-3 w-3;
+  }
+  
+  .pulse-dot::before {
+    @apply absolute inline-flex h-full w-full animate-ping rounded-full bg-current opacity-75;
+    content: '';
+  }
+  
+  .pulse-dot::after {
+    @apply relative inline-flex h-3 w-3 rounded-full bg-current;
+    content: '';
+  }
+  
+  /* Progress bar */
+  .progress-bar {
+    @apply h-2 bg-slate-200 rounded-full overflow-hidden;
+  }
+  
+  .progress-bar-fill {
+    @apply h-full rounded-full transition-all duration-500 ease-out;
+  }
+  
+  /* Avatar */
+  .avatar {
+    @apply inline-flex items-center justify-center rounded-full bg-gradient-to-br from-navy-600 to-navy-700 
+           text-white font-semibold shadow-md;
+  }
+  
+  .avatar-sm {
+    @apply avatar w-8 h-8 text-xs;
+  }
+  
+  .avatar-md {
+    @apply avatar w-10 h-10 text-sm;
+  }
+  
+  .avatar-lg {
+    @apply avatar w-12 h-12 text-base;
+  }
+  
+  /* Divider with label */
+  .divider {
+    @apply flex items-center gap-4 text-xs text-slate-400 uppercase tracking-wider;
+  }
+  
+  .divider::before,
+  .divider::after {
+    @apply flex-1 h-px bg-slate-200;
+    content: '';
+  }
+  
+  /* Skeleton loading */
+  .skeleton {
+    @apply animate-pulse bg-slate-200 rounded;
+  }
+  
+  /* Tooltip */
+  .tooltip {
+    @apply absolute z-50 px-2 py-1 text-xs font-medium text-white bg-slate-800 rounded-lg shadow-lg
+           opacity-0 invisible transition-all duration-200;
+  }
+  
+  .tooltip-trigger:hover .tooltip {
+    @apply opacity-100 visible;
+  }
+}
+
+/* Toast/Notification Styles */
+@layer utilities {
+  .toast {
+    @apply fixed bottom-8 right-8 max-w-sm bg-white rounded-2xl shadow-strong border border-slate-200 p-4 animate-slide-in-right;
+  }
+  
+  .toast-success {
+    @apply toast border-l-4 border-l-green-500;
+  }
+  
+  .toast-error {
+    @apply toast border-l-4 border-l-red-500;
+  }
+  
+  .toast-info {
+    @apply toast border-l-4 border-l-blue-500;
+  }
+  
+  /* Text gradient */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r;
+  }
+  
+  .text-gradient-navy {
+    @apply text-gradient from-navy-700 to-navy-900;
+  }
+  
+  .text-gradient-blue {
+    @apply text-gradient from-blue-600 to-indigo-600;
+  }
+  
+  .text-gradient-green {
+    @apply text-gradient from-green-600 to-emerald-600;
+  }
+}
+
+/* Keyframe Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from { 
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes bounce-soft {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10%);
+  }
+}
+
+/* Animation utility classes */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.4s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Stagger animation delays */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+
+/* 8px Grid System Helper */
+.grid-8 {
+  display: grid;
+  gap: 0.5rem; /* 8px */
+}
+
+/* Safe Areas for Mobile (notch, home indicator) */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Touch Optimization */
+@media (hover: none) and (pointer: coarse) {
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Larger tap targets on mobile */
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost {
+    min-height: 44px;
+  }
+}
+
+/* Scrollbar Styling - More refined */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300/50 rounded-full hover:bg-slate-400/50;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+}
+
+/* Backdrop blur fallback for older browsers */
+@supports not (backdrop-filter: blur(8px)) {
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur-lg {
+    background-color: rgba(255, 255, 255, 0.95);
+  }
+}
+
+/* Focus visible for keyboard navigation */
+:focus-visible {
+  @apply outline-none ring-2 ring-navy-500 ring-offset-2;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .card {
+    @apply shadow-none border border-slate-300;
+  }
+}

@@ -1,0 +1,48 @@
+# ===========================================
+# Render Deployment Configuration
+# ===========================================
+# Deploy to: https://render.com
+
+services:
+  # Backend API
+  - type: web
+    name: movva-api
+    runtime: python
+    region: frankfurt  # or oregon, singapore
+    plan: free
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate"
+    startCommand: "gunicorn config.wsgi:application"
+    healthCheckPath: /health/
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "false"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: movva-db
+          property: connectionString
+
+  # Frontend (Next.js)
+  - type: web
+    name: movva-web
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: "npm install && npm run build"
+    startCommand: "npm start"
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NEXT_PUBLIC_API_URL
+        value: https://movva-api.onrender.com/api/v1
+
+databases:
+  - name: movva-db
+    plan: free
+    databaseName: movva
+    user: movva

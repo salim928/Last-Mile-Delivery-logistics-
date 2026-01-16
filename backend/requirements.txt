@@ -1,0 +1,41 @@
+# Django & REST Framework
+Django==5.0.1
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+django-filter==23.5
+
+# Authentication
+djangorestframework-simplejwt==5.3.1
+PyJWT==2.8.0
+
+# Database
+# DATABASE_URL parsing + PostgreSQL support (recommended for hosted deployments)
+dj-database-url==2.2.0
+psycopg2-binary==2.9.9
+# Alternative: Use psycopg[binary] for PostgreSQL on Python 3.13+
+# psycopg[binary]>=3.1.0
+
+# Password hashing
+bcrypt==4.1.2
+
+# Validation & Serialization
+python-dateutil==2.8.2
+phonenumbers==8.13.26
+
+# HTTP Client
+httpx==0.26.0
+
+# Route Optimization
+ortools>=9.12.4544
+
+# PDF Generation
+reportlab==4.0.8
+
+# File handling
+Pillow>=10.4.0
+
+# Environment
+python-decouple==3.8
+
+# Development & Testing
+gunicorn==21.2.0

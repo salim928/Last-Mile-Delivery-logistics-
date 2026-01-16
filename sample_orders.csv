@@ -1,0 +1,6 @@
+order_id,customer_name,customer_phone,delivery_address,delivery_city,landmark,is_cod,cod_amount,weight_kg,notes
+ORD001,Kwame Asante,+233244123456,15 Independence Ave,Accra,Near National Theatre,true,150. 00,2.5,Fragile electronics
+ORD002,Ama Serwaa,+233201234567,23 Oxford Street,Accra,Opp.  Koala Shopping Center,true,85.00,1.0,Clothing items
+ORD003,Kofi Mensah,+233277654321,Spintex Road Plot 7,Accra,Behind Palace Mall,false,0,0.5,Documents
+ORD004,Abena Osei,+233268901234,Tema Community 1,Tema,Near TDC Estate,true,220.00,3.0,Household items
+ORD005,Yaw Boateng,+233559876543,Madina Zongo Junction,Accra,Behind the Market,true,45.00,1.5,Food items
