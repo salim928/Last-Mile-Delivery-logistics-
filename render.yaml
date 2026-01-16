@@ -8,11 +8,12 @@ services:
   - type: web
     name: movva-api
     runtime: python
+    rootDir: backend
     region: frankfurt  # or oregon, singapore
     plan: free
-    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate"
-    startCommand: "gunicorn config.wsgi:application"
-    healthCheckPath: /health/
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT"
+    healthCheckPath: /
     envVars:
       - key: PYTHON_VERSION
         value: "3.11.0"
