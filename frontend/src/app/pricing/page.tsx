@@ -44,7 +44,7 @@ const plans = [
     price: { monthly: 299, annually: 249 },
     currency: '₵',
     icon: Building2,
-    gradient: 'from-violet-500 to-purple-500',
+    gradient: 'from-amber-500 to-orange-500',
     popular: true,
     features: [
       { name: 'Up to 5,000 orders/month', included: true },

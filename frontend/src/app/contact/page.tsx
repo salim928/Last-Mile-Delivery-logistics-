@@ -39,7 +39,7 @@ const contactOptions = [
     description: 'Explore partnership opportunities',
     email: 'partners@movva.io',
     response: 'Response within 24 hours',
-    gradient: 'from-violet-500 to-purple-500',
+    gradient: 'from-amber-500 to-orange-500',
   },
 ];
 
@@ -200,7 +200,7 @@ export default function ContactPage() {
                         setSubmitted(false);
                         setFormData({ name: '', email: '', company: '', phone: '', subject: 'sales', message: '' });
                       }}
-                      className="text-indigo-600 font-medium hover:text-indigo-700"
+                      className="text-orange-600 font-medium hover:text-orange-700"
                     >
                       Send another message
                     </button>
@@ -217,7 +217,7 @@ export default function ContactPage() {
                           required
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
                           placeholder="John Doe"
                         />
                       </div>
@@ -230,7 +230,7 @@ export default function ContactPage() {
                           required
                           value={formData.email}
                           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
                           placeholder="john@company.com"
                         />
                       </div>
@@ -245,7 +245,7 @@ export default function ContactPage() {
                           type="text"
                           value={formData.company}
                           onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
                           placeholder="Your company"
                         />
                       </div>
@@ -257,7 +257,7 @@ export default function ContactPage() {
                           type="tel"
                           value={formData.phone}
                           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
                           placeholder="+233 XX XXX XXXX"
                         />
                       </div>
@@ -290,7 +290,7 @@ export default function ContactPage() {
                         rows={5}
                         value={formData.message}
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none"
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 resize-none"
                         placeholder="Tell us more about your inquiry..."
                       />
                     </div>
