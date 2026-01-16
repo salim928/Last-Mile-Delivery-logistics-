@@ -251,7 +251,7 @@ export default function ResourcesPage() {
                       </div>
                     </div>
                     <div className="p-6">
-                      <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors">
+                      <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-orange-600 transition-colors">
                         {resource.title}
                       </h3>
                       <p className="text-slate-600 leading-relaxed">
@@ -306,12 +306,12 @@ export default function ResourcesPage() {
                         href={link.href}
                         className="flex items-center justify-between p-4 rounded-xl hover:bg-slate-50 transition-colors group"
                       >
-                        <span className="font-medium text-slate-700 group-hover:text-indigo-600 transition-colors">
+                        <span className="font-medium text-slate-700 group-hover:text-orange-600 transition-colors">
                           {link.title}
                         </span>
                         <div className="flex items-center gap-3">
                           <span className="text-sm text-slate-400">{link.time}</span>
-                          <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
+                          <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-orange-600 group-hover:translate-x-1 transition-all" />
                         </div>
                       </Link>
                     ))}
@@ -327,7 +327,7 @@ export default function ResourcesPage() {
       <section className="py-24">
         <div className="max-w-4xl mx-auto px-6 lg:px-10">
           <div className="relative rounded-3xl overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-600" />
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-600 via-amber-600 to-orange-600" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.2),transparent)]" />
 
             <div className="relative z-10 py-16 px-8 lg:px-16 text-center">
@@ -350,7 +350,7 @@ export default function ResourcesPage() {
                 />
                 <button
                   type="submit"
-                  className="px-8 py-4 bg-white text-indigo-600 font-semibold rounded-full hover:bg-slate-100 transition-colors"
+                  className="px-8 py-4 bg-white text-orange-600 font-semibold rounded-full hover:bg-slate-100 transition-colors"
                 >
                   Subscribe
                 </button>

@@ -145,7 +145,7 @@ export default function AboutPage() {
           >
             Making deliveries
             <br />
-            <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
               work for Africa
             </span>
           </motion.h1>

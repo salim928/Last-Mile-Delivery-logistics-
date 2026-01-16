@@ -174,14 +174,14 @@ export default function BlogPage() {
                 transition={{ delay: index * 0.05 }}
               >
                 <Link href="#" className="group block h-full">
-                  <div className="h-full bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-slate-200/50 hover:border-indigo-200 transition-all duration-300">
+                  <div className="h-full bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-slate-200/50 hover:border-orange-200 transition-all duration-300">
                     <div className="flex items-center gap-2 mb-4">
                       <span className="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-medium rounded-full">
                         {post.category}
                       </span>
                       <span className="text-xs text-slate-400">{post.date}</span>
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-indigo-600 transition-colors">
+                    <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-orange-600 transition-colors">
                       {post.title}
                     </h3>
                     <p className="text-slate-600 mb-4 line-clamp-2">{post.excerpt}</p>
