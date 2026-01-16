@@ -11,7 +11,7 @@ const featuredPost = {
   date: 'January 10, 2026',
   readTime: '12 min read',
   category: 'Guide',
-  gradient: 'from-indigo-600 to-violet-600',
+  gradient: 'from-orange-600 to-amber-600',
 };
 
 const posts = [
@@ -75,7 +75,7 @@ export default function BlogPage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
                 <Truck className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-slate-900">Movva</span>
@@ -107,7 +107,7 @@ export default function BlogPage() {
               <input
                 type="text"
                 placeholder="Search articles..."
-                className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
               />
             </div>
             <div className="flex gap-2 overflow-x-auto pb-2">
@@ -213,7 +213,7 @@ export default function BlogPage() {
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              className="flex-1 px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
             />
             <button className="px-6 py-3 bg-slate-900 text-white font-medium rounded-xl hover:bg-slate-800 transition-colors">
               Subscribe

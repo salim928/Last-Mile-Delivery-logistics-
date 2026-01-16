@@ -11,7 +11,7 @@ export default function PrivacyPage() {
         <div className="max-w-4xl mx-auto px-6 lg:px-10">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
                 <Truck className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-slate-900">Movva</span>

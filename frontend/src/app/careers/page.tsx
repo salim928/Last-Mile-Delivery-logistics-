@@ -103,7 +103,7 @@ export default function CareersPage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
                 <Truck className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-slate-900">Movva</span>
@@ -120,14 +120,14 @@ export default function CareersPage() {
 
       {/* Hero Section */}
       <section className="pt-32 pb-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-violet-50 to-white" />
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-indigo-100/50 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-amber-50 to-white" />
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-orange-100/50 rounded-full blur-3xl" />
 
         <div className="relative z-10 max-w-5xl mx-auto px-6 lg:px-10 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-200 text-sm font-medium text-indigo-700 mb-6"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50 border border-orange-200 text-sm font-medium text-orange-700 mb-6"
           >
             <Briefcase className="w-4 h-4" />
             We&apos;re Hiring
@@ -141,7 +141,7 @@ export default function CareersPage() {
           >
             Build the future of
             <br />
-            <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
               African logistics
             </span>
           </motion.h1>
@@ -191,7 +191,7 @@ export default function CareersPage() {
                 className="text-center"
               >
                 <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mx-auto mb-4 shadow-sm">
-                  <value.icon className="w-8 h-8 text-indigo-600" />
+                  <value.icon className="w-8 h-8 text-orange-600" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 mb-2">{value.title}</h3>
                 <p className="text-slate-600">{value.description}</p>
@@ -219,7 +219,7 @@ export default function CareersPage() {
                 transition={{ delay: index * 0.05 }}
                 className="p-6 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors"
               >
-                <benefit.icon className="w-8 h-8 text-indigo-600 mb-4" />
+                <benefit.icon className="w-8 h-8 text-orange-600 mb-4" />
                 <h3 className="text-lg font-bold text-slate-900 mb-1">{benefit.title}</h3>
                 <p className="text-slate-600">{benefit.description}</p>
               </motion.div>
@@ -247,11 +247,11 @@ export default function CareersPage() {
               >
                 <Link
                   href={`/careers/${job.title.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="block bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-slate-200/50 hover:border-indigo-200 transition-all duration-300 group"
+                  className="block bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:shadow-slate-200/50 hover:border-orange-200 transition-all duration-300 group"
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div>
-                      <h3 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors mb-2">
+                      <h3 className="text-xl font-bold text-slate-900 group-hover:text-orange-600 transition-colors mb-2">
                         {job.title}
                       </h3>
                       <p className="text-slate-600 mb-3">{job.description}</p>
@@ -270,7 +270,7 @@ export default function CareersPage() {
                         </span>
                       </div>
                     </div>
-                    <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
+                    <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-orange-600 group-hover:translate-x-1 transition-all flex-shrink-0" />
                   </div>
                 </Link>
               </motion.div>
@@ -283,7 +283,7 @@ export default function CareersPage() {
             </p>
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 text-indigo-600 font-medium hover:text-indigo-700"
+              className="inline-flex items-center gap-2 text-orange-600 font-medium hover:text-orange-700"
             >
               Send us your resume
               <ArrowRight className="w-4 h-4" />
