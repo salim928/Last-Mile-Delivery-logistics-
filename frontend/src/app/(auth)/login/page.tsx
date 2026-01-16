@@ -67,6 +67,13 @@ export default function LoginPage() {
     },
     onSuccess: (data) => {
       setMerchant(data.merchant);
+      
+      // Track login event
+      analytics.trackLogin(
+        data.merchant.id.toString(),
+        data.merchant.email
+      );
+      
       router.push('/dashboard');
     },
     onError: (err: any) => {

@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import { Truck, Mail, Lock, Building2, Phone, Loader2, ArrowRight, Check, Sparkles } from 'lucide-react';
 import api from '@/lib/api';
 import { useAuthStore } from '@/lib/store';
+import analytics from '@/lib/analytics';
 
 const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -62,6 +63,23 @@ export default function RegisterPage() {
     },
     onSuccess: (data) => {
       setMerchant(data.merchant);
+      
+      // Track signup event
+      analytics.trackSignup(
+        data.merchant.id.toString(),
+        data.merchant.email,
+        data.merchant.business_name,
+        data.merchant.subscription_status
+      );
+      
+      // Track trial started
+      if (data.merchant.trial_ends_at) {
+        analytics.trackTrialStarted(
+          data.merchant.id.toString(),
+          data.merchant.trial_ends_at
+        );
+      }
+      
       router.push('/dashboard');
     },
     onError: (err:  any) => {

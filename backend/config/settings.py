@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from decouple import config, Csv
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -17,6 +19,21 @@ SECRET_KEY = config('SECRET_KEY', default='your-secret-key-change-in-production-
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
+
+# ============================================
+# Sentry Error Monitoring
+# ============================================
+SENTRY_DSN = config('SENTRY_DSN', default='')
+if SENTRY_DSN and not DEBUG:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[
+            DjangoIntegration(),
+        ],
+        traces_sample_rate=0.1,  # 10% of transactions
+        send_default_pii=False,  # Don't send personal data
+        environment='production' if not DEBUG else 'development',
+    )
 
 # Application definition
 INSTALLED_APPS = [
@@ -214,3 +231,15 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Movva <noreply@movva.
 # Pilot Program Settings
 PILOT_NOTIFICATION_EMAIL = config('PILOT_NOTIFICATION_EMAIL', default='salimadams49@gmail.com')
 PILOT_WHATSAPP_NUMBER = config('PILOT_WHATSAPP_NUMBER', default='+233557553975')
+
+# ============================================
+# Paystack Payment Gateway (Ghana)
+# ============================================
+PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY', default='')
+PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY', default='')
+PAYSTACK_CALLBACK_URL = config('PAYSTACK_CALLBACK_URL', default='https://movva-app.vercel.app/dashboard/billing/callback')
+
+# Subscription Plans (Paystack Plan Codes)
+PAYSTACK_STARTER_PLAN = config('PAYSTACK_STARTER_PLAN', default='')
+PAYSTACK_PROFESSIONAL_PLAN = config('PAYSTACK_PROFESSIONAL_PLAN', default='')
+PAYSTACK_ENTERPRISE_PLAN = config('PAYSTACK_ENTERPRISE_PLAN', default='')
