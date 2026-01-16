@@ -178,9 +178,9 @@ export default function PremiumLanding() {
         <div className="absolute inset-0 overflow-hidden">
           {/* Main gradient mesh */}
           <div className="absolute top-0 right-0 w-[80%] h-[120%] opacity-40">
-            <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full bg-gradient-to-br from-violet-400 via-indigo-400 to-cyan-400 blur-[120px]" />
-            <div className="absolute top-[20%] right-[20%] w-[600px] h-[600px] rounded-full bg-gradient-to-br from-pink-300 via-purple-300 to-indigo-400 blur-[100px]" />
-            <div className="absolute bottom-[10%] right-[5%] w-[500px] h-[500px] rounded-full bg-gradient-to-br from-cyan-300 via-blue-300 to-indigo-400 blur-[80px]" />
+            <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] rounded-full bg-gradient-to-br from-amber-400 via-orange-400 to-yellow-400 blur-[120px]" />
+            <div className="absolute top-[20%] right-[20%] w-[600px] h-[600px] rounded-full bg-gradient-to-br from-orange-300 via-amber-300 to-yellow-400 blur-[100px]" />
+            <div className="absolute bottom-[10%] right-[5%] w-[500px] h-[500px] rounded-full bg-gradient-to-br from-yellow-300 via-amber-300 to-orange-400 blur-[80px]" />
           </div>
           {/* Subtle grid overlay */}
           <div 
@@ -434,7 +434,7 @@ export default function PremiumLanding() {
         {/* Background decoration */}
         <div className="absolute inset-0">
           <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-gradient-to-br from-orange-100/50 to-transparent rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-gradient-to-br from-violet-100/50 to-transparent rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-gradient-to-br from-amber-100/50 to-transparent rounded-full blur-3xl" />
         </div>
 
         <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-10">
@@ -589,7 +589,7 @@ export default function PremiumLanding() {
                           ))}
                         </div>
                         <div className="mt-6 p-4 bg-orange-50 rounded-xl border border-orange-100">
-                          <p className="text-sm text-indigo-700"><strong>247 orders</strong> imported successfully</p>
+                          <p className="text-sm text-orange-700"><strong>247 orders</strong> imported successfully</p>
                         </div>
                       </motion.div>
                     )}
@@ -603,7 +603,7 @@ export default function PremiumLanding() {
                       >
                         <div className="flex items-center justify-between mb-6">
                           <h4 className="font-semibold text-slate-900">Route Optimization</h4>
-                          <span className="px-3 py-1 bg-violet-50 text-amber-600 text-xs font-semibold rounded-full flex items-center gap-1">
+                          <span className="px-3 py-1 bg-orange-50 text-amber-600 text-xs font-semibold rounded-full flex items-center gap-1">
                             <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
                             Optimizing
                           </span>
@@ -955,9 +955,9 @@ export default function PremiumLanding() {
                 transition={{ delay: 0.2 }}
                 className="group"
               >
-                <div className="relative p-8 rounded-3xl bg-gradient-to-br from-violet-50 via-white to-purple-50 border border-violet-200/50 hover:shadow-2xl hover:shadow-violet-200/40 hover:-translate-y-1 transition-all duration-500 overflow-hidden">
+                <div className="relative p-8 rounded-3xl bg-gradient-to-br from-orange-50 via-white to-amber-50 border border-orange-200/50 hover:shadow-2xl hover:shadow-orange-200/40 hover:-translate-y-1 transition-all duration-500 overflow-hidden">
                   {/* Subtle pattern */}
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-violet-100/50 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-orange-100/50 via-transparent to-transparent" />
                   
                   <div className="relative">
                     <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-purple-500 flex items-center justify-center mb-6 shadow-lg shadow-amber-500/25">
@@ -970,7 +970,7 @@ export default function PremiumLanding() {
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {['iOS', 'Android', 'Offline'].map((tag) => (
-                        <span key={tag} className="px-4 py-1.5 bg-violet-100/80 text-violet-700 text-xs font-semibold rounded-full border border-violet-200/50">
+                        <span key={tag} className="px-4 py-1.5 bg-orange-100/80 text-orange-700 text-xs font-semibold rounded-full border border-orange-200/50">
                           {tag}
                         </span>
                       ))}
@@ -1075,7 +1075,7 @@ export default function PremiumLanding() {
             >
               Powering deliveries
               <br />
-              <span className="bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">across Ghana</span>
+              <span className="bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">across Ghana</span>
             </motion.h2>
           </div>
 
@@ -1092,7 +1092,7 @@ export default function PremiumLanding() {
                 value: '30%', 
                 label: 'Cost Reduction', 
                 description: 'Average client savings',
-                gradient: 'from-violet-400 to-purple-500',
+                gradient: 'from-orange-400 to-amber-500',
               },
               { 
                 value: '99.2%', 
@@ -1152,10 +1152,10 @@ export default function PremiumLanding() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-100/60 backdrop-blur-sm border border-indigo-200/50 mb-6"
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-100/60 backdrop-blur-sm border border-orange-200/50 mb-6"
               >
                 <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                <span className="text-sm font-semibold text-indigo-700">Why Businesses Choose Us</span>
+                <span className="text-sm font-semibold text-orange-700">Why Businesses Choose Us</span>
               </motion.div>
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
@@ -1266,7 +1266,7 @@ export default function PremiumLanding() {
           ================================================================ */}
       <section className="relative py-36 overflow-hidden">
         {/* Premium dark gradient background */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-950 via-slate-900 to-slate-950" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-950 via-slate-900 to-slate-950" />
         
         {/* Animated gradient orbs */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px]">
