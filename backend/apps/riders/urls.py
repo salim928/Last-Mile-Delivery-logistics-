@@ -21,6 +21,7 @@ urlpatterns = [
     path('<int:pk>/', rider_detail_viewset, name='rider-detail'),
     path('<int:pk>/location/', views.RiderViewSet.as_view({'post': 'update_location'}), name='rider-location'),
     path('<int:pk>/set-pin/', views.RiderViewSet.as_view({'post': 'set_pin'}), name='rider-set-pin-merchant'),
+    path('<int:pk>/performance/', views.RiderViewSet.as_view({'get': 'performance'}), name='rider-performance'),
     
     # Rider portal endpoints (mobile app / web portal)
     path('auth/login/', views.rider_login, name='rider-login'),
