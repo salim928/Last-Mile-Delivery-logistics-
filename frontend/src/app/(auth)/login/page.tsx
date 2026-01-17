@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import api from '@/lib/api';
 import { useAuthStore } from '@/lib/store';
+import analytics from '@/lib/analytics';
 
 type Role = 'merchant' | 'rider' | null;
 

@@ -107,6 +107,10 @@ export default function DashboardLayout({
         <div
           className="fixed inset-0 bg-navy-950/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
           onClick={toggleSidebar}
+          role="button"
+          aria-label="Close sidebar"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Escape' && toggleSidebar()}
         />
       )}
 
@@ -255,48 +259,50 @@ export default function DashboardLayout({
         <header className="sticky top-0 z-30 bg-white/70 backdrop-blur-xl border-b border-slate-200/60 shadow-sm">
           <div className="flex items-center justify-between h-16 px-4 lg:px-6">
             {/* Left: Mobile Menu + Search */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
               <button
                 onClick={toggleSidebar}
-                className="lg:hidden p-2 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors"
+                className="lg:hidden p-2.5 -ml-1 rounded-xl hover:bg-slate-100 active:bg-slate-200 text-slate-600 transition-colors touch-manipulation"
+                aria-label="Toggle sidebar"
               >
                 <Menu className="w-5 h-5" />
               </button>
               
-              {/* Quick Search - Enhanced */}
+              {/* Quick Search - Enhanced + Mobile */}
               <div className={clsx(
-                'hidden md:flex items-center gap-2 rounded-xl px-4 py-2.5 w-80 transition-all duration-200',
+                'flex items-center gap-2 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 flex-1 sm:flex-initial sm:w-64 md:w-80 transition-all duration-200',
                 searchFocused 
                   ? 'bg-white shadow-md ring-2 ring-navy-500/30' 
                   : 'bg-slate-100 hover:bg-slate-200/70'
               )}>
-                <Search className="w-4 h-4 text-slate-400" />
+                <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
                 <input
                   type="text"
-                  placeholder="Search orders, routes, riders..."
-                  className="bg-transparent border-none outline-none text-sm text-slate-900 placeholder:text-slate-400 w-full"
+                  placeholder="Search..."
+                  className="bg-transparent border-none outline-none text-sm text-slate-900 placeholder:text-slate-400 w-full min-w-0"
                   onFocus={() => setSearchFocused(true)}
                   onBlur={() => setSearchFocused(false)}
                 />
-                <kbd className="hidden lg:inline-flex px-2 py-1 text-2xs font-medium text-slate-400 bg-slate-200/50 rounded">
+                <kbd className="hidden lg:inline-flex px-2 py-1 text-2xs font-medium text-slate-400 bg-slate-200/50 rounded flex-shrink-0">
                   ⌘K
                 </kbd>
               </div>
             </div>
 
             {/* Right: Actions - Enhanced */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
               {merchant?.subscription_status === 'trial' && (
-                <div className="hidden sm:inline-flex items-center gap-2 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 px-3 py-1.5 rounded-xl text-xs font-semibold ring-1 ring-amber-200/50">
-                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                <div className="hidden sm:inline-flex items-center gap-2 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 px-2 sm:px-3 py-1.5 rounded-xl text-xs font-semibold ring-1 ring-amber-200/50">
+                  <svg className="w-3.5 h-3.5 hidden sm:block" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                   </svg>
-                  Trial Account
+                  <span className="hidden sm:inline">Trial</span>
+                  <span className="sm:hidden">⏱</span>
                 </div>
               )}
               
               {/* Help Button */}
-              <button className="hidden md:flex p-2.5 rounded-xl hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors">
+              <button className="hidden sm:flex p-2 sm:p-2.5 rounded-xl hover:bg-slate-100 active:bg-slate-200 text-slate-500 hover:text-slate-700 transition-colors touch-manipulation">
                 <HelpCircle className="w-5 h-5" />
               </button>
               
@@ -304,7 +310,8 @@ export default function DashboardLayout({
               <div className="relative">
                 <button 
                   onClick={() => setNotificationsOpen(!notificationsOpen)}
-                  className="relative p-2.5 rounded-xl hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors"
+                  className="relative p-2 sm:p-2.5 rounded-xl hover:bg-slate-100 active:bg-slate-200 text-slate-500 hover:text-slate-700 transition-colors touch-manipulation"
+                  aria-label="Notifications"
                 >
                   <Bell className="w-5 h-5" />
                   <span className="absolute top-2 right-2 flex h-2 w-2">
@@ -357,7 +364,8 @@ export default function DashboardLayout({
               {/* Settings */}
               <Link 
                 href="/dashboard/settings" 
-                className="p-2.5 rounded-xl hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors"
+                className="hidden sm:flex p-2 sm:p-2.5 rounded-xl hover:bg-slate-100 active:bg-slate-200 text-slate-500 hover:text-slate-700 transition-colors touch-manipulation"
+                aria-label="Settings"
               >
                 <Settings className="w-5 h-5" />
               </Link>
@@ -375,12 +383,12 @@ export default function DashboardLayout({
         </header>
 
         {/* Page Content - Enhanced with animations */}
-        <main className="p-4 lg:p-8 max-w-[1600px] mx-auto animate-fade-in">
+        <main className="p-3 sm:p-4 lg:p-8 pb-20 lg:pb-8 max-w-[1600px] mx-auto animate-fade-in">
           {children}
         </main>
         
-        {/* Footer */}
-        <footer className="py-6 px-8 border-t border-slate-200/60 bg-white/30 backdrop-blur-sm">
+        {/* Footer - Hidden on mobile since we have bottom nav */}
+        <footer className="hidden lg:block py-6 px-8 border-t border-slate-200/60 bg-white/30 backdrop-blur-sm">
           <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <p>© {new Date().getFullYear()} Movva Technologies Ltd.</p>
             <div className="flex items-center gap-4">
@@ -391,6 +399,52 @@ export default function DashboardLayout({
           </div>
         </footer>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-slate-200 safe-area-bottom">
+        <div className="flex items-center justify-around h-16 px-2">
+          {[
+            { href: '/dashboard', label: 'Home', icon: LayoutDashboard },
+            { href: '/dashboard/orders', label: 'Orders', icon: Package },
+            { href: '/dashboard/routes', label: 'Routes', icon: Route },
+            { href: '/dashboard/riders', label: 'Riders', icon: Users },
+            { href: '/dashboard/settings', label: 'More', icon: Settings },
+          ].map((item) => {
+            const isActive =
+              pathname === item.href ||
+              (item.href !== '/dashboard' && pathname.startsWith(item.href));
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={clsx(
+                  'flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-xl transition-colors touch-manipulation min-w-[56px]',
+                  isActive
+                    ? 'text-navy-700'
+                    : 'text-slate-400 active:text-slate-600'
+                )}
+              >
+                <div className={clsx(
+                  'p-1.5 rounded-lg transition-all',
+                  isActive && 'bg-navy-100'
+                )}>
+                  <item.icon className={clsx(
+                    'w-5 h-5 transition-colors',
+                    isActive ? 'text-navy-700' : 'text-slate-400'
+                  )} />
+                </div>
+                <span className={clsx(
+                  'text-[10px] font-medium',
+                  isActive ? 'text-navy-700' : 'text-slate-500'
+                )}>
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
 
       {/* Feedback Widget */}
       <FeedbackWidget />
