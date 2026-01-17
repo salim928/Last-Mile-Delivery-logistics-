@@ -1,0 +1,11 @@
+{
+  "reportMissingModuleSource": "none",
+  "reportMissingImports": "warning",
+  "pythonVersion": "3.11",
+  "venvPath": ".",
+  "venv": "venv",
+  "exclude": [
+    "**/migrations/**",
+    "**/__pycache__/**"
+  ]
+}

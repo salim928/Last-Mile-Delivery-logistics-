@@ -376,6 +376,22 @@ def rider_go_offline(request):
 class RiderViewSet(viewsets.ViewSet):
     """ViewSet for rider operations."""
     
+    def dispatch(self, request, *args, **kwargs):
+        """Check merchant authentication before any action."""
+        # Allow OPTIONS requests for CORS
+        if request.method == 'OPTIONS':
+            return super().dispatch(request, *args, **kwargs)
+        
+        # Check if merchant is authenticated
+        if not getattr(request, 'merchant', None):
+            from rest_framework.response import Response
+            return Response(
+                {'detail': 'Authentication required. Please login again.'},
+                status=401
+            )
+        
+        return super().dispatch(request, *args, **kwargs)
+    
     def list(self, request):
         """List all riders for the current merchant."""
         queryset = Rider.objects.filter(merchant=request.merchant)
@@ -493,11 +509,18 @@ class RiderViewSet(viewsets.ViewSet):
     @action(detail=True, methods=['post'], url_path='set-pin')
     def set_pin(self, request, pk=None):
         """Set or reset a rider's PIN (merchant only)."""
+        # Check if merchant is authenticated
+        if not request.merchant:
+            return Response(
+                {'detail': 'Authentication required'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
         try:
             rider = Rider.objects.get(id=pk, merchant=request.merchant)
         except Rider.DoesNotExist:
             return Response(
-                {'detail': 'Rider not found'},
+                {'detail': 'Rider not found or not owned by your account'},
                 status=status.HTTP_404_NOT_FOUND
             )
         
