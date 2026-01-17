@@ -1,14 +1,22 @@
 """
 Route Optimization Service using OR-Tools (free, open-source).
 Implements Vehicle Routing Problem (VRP) solver with constraints.
+Falls back to simple nearest-neighbor if OR-Tools is not available.
 """
 from typing import List, Optional, Tuple, Dict
 from dataclasses import dataclass
 import math
 import httpx
-from ortools.constraint_solver import routing_enums_pb2
-from ortools.constraint_solver import pywrapcp
 from django.conf import settings
+
+# Try to import OR-Tools, gracefully degrade if not available
+try:
+    from ortools.constraint_solver import routing_enums_pb2
+    from ortools.constraint_solver import pywrapcp
+    ORTOOLS_AVAILABLE = True
+except ImportError:
+    ORTOOLS_AVAILABLE = False
+    print("OR-Tools not available. Using simple nearest-neighbor optimization.")
 
 
 @dataclass
@@ -152,6 +160,12 @@ class RouteOptimizer:
         
         # Get distance/duration matrix
         distances_km, durations_min = self._get_osrm_matrix(locations)
+        
+        # If OR-Tools is not available, use nearest neighbor fallback
+        if not ORTOOLS_AVAILABLE:
+            return self._nearest_neighbor_route(
+                locations, distances_km, durations_min, depot_index
+            )
         
         # Convert to integers for OR-Tools (multiply by 100 for precision)
         distance_matrix = [[int(d * 100) for d in row] for row in distances_km]
