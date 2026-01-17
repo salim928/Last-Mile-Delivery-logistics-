@@ -40,6 +40,29 @@ export default function PremiumLanding() {
   const heroRef = useRef<HTMLDivElement>(null);
   const heroInView = useInView(heroRef, { once: true });
 
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Check if click is outside nav
+      if (!target.closest('nav')) {
+        setMobileMenuOpen(false);
+      }
+    };
+    
+    // Add listener with slight delay to prevent immediate close
+    const timer = setTimeout(() => {
+      document.addEventListener('click', handleClickOutside);
+    }, 10);
+    
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [mobileMenuOpen]);
+
   // Auto-rotate features
   useEffect(() => {
     const interval = setInterval(() => {
@@ -131,10 +154,23 @@ export default function PremiumLanding() {
           </div>
         </div>
 
+        {/* Mobile Menu Backdrop */}
+        {mobileMenuOpen && (
+          <div 
+            className="lg:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-[55]"
+            style={{ top: '72px' }}
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-t border-slate-100 shadow-xl">
-            <div className="px-4 py-4 space-y-1">
+          <div 
+            className="lg:hidden fixed left-0 right-0 bg-white border-t border-slate-100 shadow-2xl z-[60]"
+            style={{ top: '72px' }}
+          >
+            <div className="px-4 py-4 space-y-1 max-h-[calc(100vh-72px)] overflow-y-auto">
               {[
                 { label: 'Features', href: '/features' },
                 { label: 'Pricing', href: '/pricing' },
