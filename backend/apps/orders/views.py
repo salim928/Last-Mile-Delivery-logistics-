@@ -38,8 +38,8 @@ def track_order(request, pk):
         )
     
     # Build timeline based on order status
-    status_order = ['pending', 'assigned', 'in_transit', 'delivered']
-    current_index = status_order.index(order.status) if order.status in status_order else 0
+    status_progression = ['pending', 'assigned', 'in_transit', 'delivered']
+    current_index = status_progression.index(order.status) if order.status in status_progression else 0
     
     timeline = [
         {
