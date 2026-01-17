@@ -343,13 +343,58 @@ function AddRiderModal({ onClose }: { onClose: () => void }) {
       onClose();
     },
     onError: (err: any) => {
-      setError(err?.response?.data?.detail || 'Failed to add rider. Please try again.');
+      // Handle different error formats from DRF
+      const errorData = err?.response?.data;
+      if (errorData) {
+        // Check for field-level errors (DRF format)
+        if (errorData.phone_number) {
+          const phoneError = Array.isArray(errorData.phone_number) 
+            ? errorData.phone_number[0] 
+            : errorData.phone_number;
+          setError(`Phone number: ${phoneError}`);
+        } else if (errorData.name) {
+          const nameError = Array.isArray(errorData.name) 
+            ? errorData.name[0] 
+            : errorData.name;
+          setError(`Name: ${nameError}`);
+        } else if (errorData.detail) {
+          setError(errorData.detail);
+        } else if (typeof errorData === 'object') {
+          // Try to extract first error from any field
+          const firstError = Object.entries(errorData).find(([_, v]) => v);
+          if (firstError) {
+            const [field, value] = firstError;
+            const errorMsg = Array.isArray(value) ? value[0] : value;
+            setError(`${field}: ${errorMsg}`);
+          } else {
+            setError('Failed to add rider. Please try again.');
+          }
+        } else {
+          setError('Failed to add rider. Please try again.');
+        }
+      } else {
+        setError('Failed to add rider. Please check your connection and try again.');
+      }
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    
+    // Basic validation
+    if (!formData.name.trim()) {
+      setError('Please enter a rider name');
+      return;
+    }
+    
+    // Phone number validation
+    const phoneClean = formData.phone_number.replace(/[\s-]/g, '');
+    if (!phoneClean || phoneClean.length < 10) {
+      setError('Please enter a valid phone number (at least 10 digits)');
+      return;
+    }
+    
     createMutation.mutate(formData);
   };
 

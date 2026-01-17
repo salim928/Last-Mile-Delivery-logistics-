@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -24,6 +25,7 @@ import {
   ChevronRight,
   Sparkles,
   Crown,
+  LogOut,
 } from 'lucide-react';
 import api from '@/lib/api';
 import { useAuthStore } from '@/lib/store';
@@ -56,11 +58,17 @@ const tabs = [
 ];
 
 export default function SettingsPage() {
-  const { merchant, setMerchant } = useAuthStore();
+  const router = useRouter();
+  const { merchant, setMerchant, logout } = useAuthStore();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<string>('profile');
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
 
   const {
     register: registerProfile,
@@ -225,6 +233,23 @@ export default function SettingsPage() {
               );
             })}
           </nav>
+          
+          {/* Sign Out Section - Mobile accessible */}
+          <div className="mt-6 pt-6 border-t border-slate-200">
+            <p className="text-2xs font-semibold text-slate-400 uppercase tracking-wider mb-3 px-4">Account</p>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200 group hover:bg-red-50"
+            >
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center transition-all bg-red-100 text-red-600 group-hover:bg-red-200">
+                <LogOut className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm text-red-600">Sign Out</p>
+                <p className="text-2xs text-slate-500">Log out of your account</p>
+              </div>
+            </button>
+          </div>
         </div>
 
         {/* Main Content Area */}
