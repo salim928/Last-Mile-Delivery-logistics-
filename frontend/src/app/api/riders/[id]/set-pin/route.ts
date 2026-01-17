@@ -3,12 +3,21 @@ import { NextRequest, NextResponse } from 'next/server';
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
 // POST /api/riders/[id]/set-pin - Set rider PIN (merchant)
+// Updated: Ensure proper route matching
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
+    
+    if (!id) {
+      return NextResponse.json(
+        { detail: 'Rider ID is required' },
+        { status: 400 }
+      );
+    }
+    
     const authHeader = request.headers.get('Authorization');
     
     if (!authHeader) {
@@ -20,7 +29,7 @@ export async function POST(
 
     const body = await request.json();
     
-    console.log('Set PIN request for rider:', id, 'with auth:', authHeader.substring(0, 20) + '...');
+    console.log('Set PIN request for rider:', id);
 
     const response = await fetch(`${BACKEND_URL}/api/v1/riders/${id}/set-pin/`, {
       method: 'POST',
@@ -33,7 +42,7 @@ export async function POST(
 
     const data = await response.json();
     
-    console.log('Set PIN response:', response.status, data);
+    console.log('Set PIN response:', response.status);
 
     if (!response.ok) {
       return NextResponse.json(data, { status: response.status });
