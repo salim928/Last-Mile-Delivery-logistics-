@@ -175,6 +175,15 @@ class ApiClient {
     return response.data;
   }
 
+  async updateRoute(id: number, data: any) {
+    const response = await this.client.patch(`/routes/${id}`, data);
+    return response.data;
+  }
+
+  async deleteRoute(id: number) {
+    await this.client.delete(`/routes/${id}`);
+  }
+
   async optimizeRoute(id: number, returnToStart: boolean = false) {
     const response = await this.client.post(`/routes/${id}/optimize`, {}, {
       params: { return_to_start: returnToStart }

@@ -29,6 +29,7 @@ import {
   Eye,
   Zap,
   AlertCircle,
+  Trash2,
 } from 'lucide-react';
 import clsx from 'clsx';
 import api from '@/lib/api';
@@ -44,7 +45,9 @@ const statusColors: Record<string, { bg: string; text: string; ring: string }> =
 export default function RoutesPage() {
   const queryClient = useQueryClient();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState<any>(null);
+  const [routeToDelete, setRouteToDelete] = useState<any>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
   const { data: routes, isLoading } = useQuery({
@@ -55,6 +58,19 @@ export default function RoutesPage() {
   const { data: riders } = useQuery({
     queryKey: ['riders'],
     queryFn: () => api.getRiders(),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (routeId: number) => api.deleteRoute(routeId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['routes'] });
+      setShowDeleteModal(false);
+      setRouteToDelete(null);
+      setActionError(null);
+    },
+    onError: (err: any) => {
+      setActionError(err.response?.data?.detail || 'Failed to delete route');
+    },
   });
 
   const optimizeMutation = useMutation({
@@ -361,6 +377,16 @@ export default function RoutesPage() {
                   <Eye className="w-4 h-4" />
                   Details
                 </button>
+                <button
+                  onClick={() => {
+                    setRouteToDelete(route);
+                    setShowDeleteModal(true);
+                  }}
+                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Delete route"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
             </div>
           ))}
@@ -370,6 +396,49 @@ export default function RoutesPage() {
       {/* Create Route Modal */}
       {showCreateModal && (
         <CreateRouteModal onClose={() => setShowCreateModal(false)} />
+      )}
+
+      {/* Delete Route Modal */}
+      {showDeleteModal && routeToDelete && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-8 h-8 text-red-600" />
+              </div>
+              <h2 className="text-xl font-bold text-slate-900 mb-2">Delete Route?</h2>
+              <p className="text-slate-500">
+                Are you sure you want to delete <strong>{routeToDelete.name}</strong>? This will unassign all orders. This action cannot be undone.
+              </p>
+              
+              <div className="flex gap-3 mt-6">
+                <button 
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setRouteToDelete(null);
+                  }} 
+                  className="btn-secondary flex-1"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => deleteMutation.mutate(routeToDelete.id)} 
+                  disabled={deleteMutation.isPending}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-semibold disabled:opacity-50"
+                >
+                  {deleteMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4" />
+                      Delete
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Route Details Modal */}

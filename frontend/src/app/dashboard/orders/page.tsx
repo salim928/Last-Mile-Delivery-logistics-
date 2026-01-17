@@ -43,7 +43,10 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState<any>(null);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [uploadResult, setUploadResult] = useState<any>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
@@ -441,6 +444,17 @@ export default function OrdersPage() {
                           </button>
                           {activeDropdown === order.id && (
                             <div className="absolute right-6 top-12 z-20 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-1">
+                              <button
+                                onClick={() => {
+                                  setActiveDropdown(null);
+                                  setSelectedOrder(order);
+                                  setShowEditModal(true);
+                                }}
+                                className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 flex items-center gap-2"
+                              >
+                                <Edit className="w-4 h-4 text-blue-500" />
+                                Edit Order
+                              </button>
                               {order.status === 'pending' && (
                                 <button
                                   onClick={() => updateStatusMutation.mutate({ id: order.id, status: 'assigned' })}
@@ -480,9 +494,9 @@ export default function OrdersPage() {
                               <div className="border-t border-slate-100 my-1"></div>
                               <button
                                 onClick={() => {
-                                  if (confirm('Are you sure you want to delete this order?')) {
-                                    deleteMutation.mutate(order.id);
-                                  }
+                                  setActiveDropdown(null);
+                                  setSelectedOrder(order);
+                                  setShowDeleteModal(true);
                                 }}
                                 className="w-full text-left px-4 py-2.5 text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"
                               >
@@ -515,6 +529,28 @@ export default function OrdersPage() {
       {/* Add Order Modal */}
       {showAddModal && (
         <AddOrderModal onClose={() => setShowAddModal(false)} />
+      )}
+
+      {/* Edit Order Modal */}
+      {showEditModal && selectedOrder && (
+        <EditOrderModal 
+          order={selectedOrder} 
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedOrder(null);
+          }} 
+        />
+      )}
+
+      {/* Delete Order Modal */}
+      {showDeleteModal && selectedOrder && (
+        <DeleteOrderModal 
+          order={selectedOrder} 
+          onClose={() => {
+            setShowDeleteModal(false);
+            setSelectedOrder(null);
+          }} 
+        />
       )}
 
       {/* View Order Modal */}
@@ -811,6 +847,258 @@ function AddOrderModal({ onClose }: { onClose: () => void }) {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+}
+
+function EditOrderModal({ order, onClose }: { order: any; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const [formData, setFormData] = useState({
+    customer_name: order.customer_name || '',
+    customer_phone: order.customer_phone || '',
+    delivery_address: order.delivery_address || '',
+    delivery_city: order.delivery_city || 'Accra',
+    delivery_landmark: order.delivery_landmark || '',
+    is_cod: order.is_cod || false,
+    cod_amount: order.cod_amount || 0,
+    package_description: order.package_description || '',
+    status: order.status || 'pending',
+  });
+  const [error, setError] = useState<string | null>(null);
+
+  const updateMutation = useMutation({
+    mutationFn: (data: any) => api.updateOrder(order.id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      onClose();
+    },
+    onError: (err: any) => {
+      setError(err?.response?.data?.detail || 'Failed to update order. Please try again.');
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    updateMutation.mutate(formData);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="p-6 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">Edit Order</h2>
+            <p className="text-sm text-slate-500">Update order #{order.tracking_number}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5 text-slate-500" />
+          </button>
+        </div>
+        
+        {error && (
+          <div className="mx-6 mt-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+            <p className="text-red-800 text-sm">{error}</p>
+          </div>
+        )}
+        
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2 md:col-span-1">
+              <label className="label">Customer Name *</label>
+              <input
+                type="text"
+                required
+                className="input"
+                value={formData.customer_name}
+                onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
+              />
+            </div>
+            <div className="col-span-2 md:col-span-1">
+              <label className="label">Phone Number *</label>
+              <input
+                type="tel"
+                required
+                className="input"
+                value={formData.customer_phone}
+                onChange={(e) => setFormData({ ...formData, customer_phone: e.target.value })}
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label className="label">Delivery Address *</label>
+            <textarea
+              required
+              className="input min-h-[80px]"
+              rows={2}
+              value={formData.delivery_address}
+              onChange={(e) => setFormData({ ...formData, delivery_address: e.target.value })}
+            />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="label">City</label>
+              <select
+                className="input"
+                value={formData.delivery_city}
+                onChange={(e) => setFormData({ ...formData, delivery_city: e.target.value })}
+              >
+                <option>Accra</option>
+                <option>Kumasi</option>
+                <option>Tema</option>
+                <option>Takoradi</option>
+                <option>Tamale</option>
+                <option>Cape Coast</option>
+                <option>Koforidua</option>
+                <option>Sunyani</option>
+              </select>
+            </div>
+            <div>
+              <label className="label">Landmark</label>
+              <input
+                type="text"
+                className="input"
+                value={formData.delivery_landmark}
+                onChange={(e) => setFormData({ ...formData, delivery_landmark: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="label">Status</label>
+            <select
+              className="input"
+              value={formData.status}
+              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+            >
+              <option value="pending">Pending</option>
+              <option value="assigned">Assigned</option>
+              <option value="in_transit">In Transit</option>
+              <option value="delivered">Delivered</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
+          
+          <div className="bg-slate-50 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={formData.is_cod}
+                  onChange={(e) => setFormData({ ...formData, is_cod: e.target.checked, cod_amount: e.target.checked ? formData.cod_amount : 0 })}
+                  className="w-5 h-5 rounded border-slate-300 text-navy-600 focus:ring-navy-500"
+                />
+                <span className="font-medium text-slate-700">Cash on Delivery (COD)</span>
+              </label>
+            </div>
+            {formData.is_cod && (
+              <div>
+                <label className="label">COD Amount (GHS) *</label>
+                <input
+                  type="number"
+                  required
+                  min="0"
+                  step="0.01"
+                  className="input"
+                  value={formData.cod_amount || ''}
+                  onChange={(e) => setFormData({ ...formData, cod_amount: parseFloat(e.target.value) || 0 })}
+                />
+              </div>
+            )}
+          </div>
+          
+          <div>
+            <label className="label">Package Description</label>
+            <input
+              type="text"
+              className="input"
+              value={formData.package_description}
+              onChange={(e) => setFormData({ ...formData, package_description: e.target.value })}
+            />
+          </div>
+          
+          <div className="flex gap-3 pt-4 border-t border-slate-200">
+            <button type="button" onClick={onClose} className="btn-secondary flex-1">
+              Cancel
+            </button>
+            <button type="submit" disabled={updateMutation.isPending} className="btn-primary flex-1">
+              {updateMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  Save Changes
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function DeleteOrderModal({ order, onClose }: { order: any; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const [error, setError] = useState<string | null>(null);
+
+  const deleteMutation = useMutation({
+    mutationFn: () => api.deleteOrder(order.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      onClose();
+    },
+    onError: (err: any) => {
+      setError(err?.response?.data?.detail || 'Failed to delete order. Please try again.');
+    },
+  });
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl">
+        <div className="p-6 text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Trash2 className="w-8 h-8 text-red-600" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Delete Order?</h2>
+          <p className="text-slate-500">
+            Are you sure you want to delete order <strong>#{order.tracking_number}</strong> for <strong>{order.customer_name}</strong>? This action cannot be undone.
+          </p>
+          
+          {error && (
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+              <p className="text-red-800 text-sm">{error}</p>
+            </div>
+          )}
+          
+          <div className="flex gap-3 mt-6">
+            <button onClick={onClose} className="btn-secondary flex-1">
+              Cancel
+            </button>
+            <button 
+              onClick={() => deleteMutation.mutate()} 
+              disabled={deleteMutation.isPending}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-semibold disabled:opacity-50"
+            >
+              {deleteMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
