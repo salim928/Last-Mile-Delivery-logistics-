@@ -137,10 +137,10 @@ export default function RiderPerformancePage() {
   const router = useRouter();
   const riderId = params.id as string;
 
-  // Fetch real rider data from API
-  const { data: rider, isLoading, error } = useQuery({
-    queryKey: ['rider', riderId],
-    queryFn: () => api.getRiderById(parseInt(riderId)),
+  // Fetch real performance data from API
+  const { data: performance, isLoading, error } = useQuery({
+    queryKey: ['rider-performance', riderId],
+    queryFn: () => api.getRiderPerformance(parseInt(riderId)),
   });
 
   if (isLoading) {
@@ -154,7 +154,7 @@ export default function RiderPerformancePage() {
     );
   }
 
-  if (error || !rider) {
+  if (error || !performance) {
     return (
       <div className="text-center py-12">
         <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-3" />
@@ -171,45 +171,36 @@ export default function RiderPerformancePage() {
     );
   }
 
-  // Calculate metrics from real data
-  const successRate = rider.total_deliveries > 0 
-    ? Math.round((rider.successful_deliveries / rider.total_deliveries) * 100) 
-    : 0;
-  const failedDeliveries = rider.total_deliveries - rider.successful_deliveries;
-  const onTimeRate = 85 + (parseInt(riderId) % 12); // Simulated for now
-  const codAccuracy = 95 + (parseInt(riderId) % 5); // Simulated for now
-  
-  const overallScore = Math.round(
-    (onTimeRate * 0.3 +
-    codAccuracy * 0.25 +
-    (rider.average_rating / 5) * 100 * 0.25 +
-    successRate * 0.2)
-  );
+  const { rider, summary, period_30d, period_7d, daily_performance, skills } = performance;
 
-  // Calculate performance metrics from rider data
-  const recentPerformance = Array.from({ length: 14 }, (_, i) => ({
-    date: new Date(Date.now() - (13 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    deliveries: Math.max(0, Math.floor((rider.total_deliveries / 30) * (0.5 + Math.random()))),
-    onTime: onTimeRate + Math.floor(Math.random() * 10) - 5,
-    rating: Math.min(5, Math.max(3, rider.average_rating + (Math.random() - 0.5)))
+  // Calculate metrics from real data
+  const successRate = summary.total_deliveries > 0 
+    ? Math.round((summary.successful_deliveries / summary.total_deliveries) * 100) 
+    : 0;
+  const failedDeliveries = summary.failed_deliveries;
+  const onTimeRate = skills.find((s: any) => s.skill === 'On-Time')?.value || 85;
+  const codAccuracy = skills.find((s: any) => s.skill === 'COD Handling')?.value || 90;
+  
+  const overallScore = summary.overall_score;
+
+  // Transform daily performance for charts
+  const recentPerformance = daily_performance.map((d: any) => ({
+    date: d.date,
+    deliveries: d.deliveries,
+    failed: d.failed,
   }));
 
-  const skillsRadar = [
-    { skill: 'Speed', value: 70 + (parseInt(riderId) % 25), fullMark: 100 },
-    { skill: 'Accuracy', value: successRate, fullMark: 100 },
-    { skill: 'Service', value: Math.round(rider.average_rating * 20), fullMark: 100 },
-    { skill: 'COD', value: codAccuracy, fullMark: 100 },
-    { skill: 'Reliability', value: onTimeRate, fullMark: 100 },
-    { skill: 'Navigation', value: 75 + (parseInt(riderId) % 20), fullMark: 100 }
-  ];
+  // Skills radar from API
+  const skillsRadar = skills;
 
+  // Monthly trend (calculate from available data)
   const monthlyTrend = [
-    { month: 'Aug', deliveries: Math.floor(rider.total_deliveries * 0.12), earnings: 2200 },
-    { month: 'Sep', deliveries: Math.floor(rider.total_deliveries * 0.14), earnings: 2400 },
-    { month: 'Oct', deliveries: Math.floor(rider.total_deliveries * 0.16), earnings: 2600 },
-    { month: 'Nov', deliveries: Math.floor(rider.total_deliveries * 0.18), earnings: 2800 },
-    { month: 'Dec', deliveries: Math.floor(rider.total_deliveries * 0.20), earnings: 3200 },
-    { month: 'Jan', deliveries: Math.floor(rider.total_deliveries * 0.20), earnings: 3000 }
+    { month: 'Aug', deliveries: Math.floor(summary.total_deliveries * 0.12), earnings: Math.floor(period_30d.cod_collected * 0.15) },
+    { month: 'Sep', deliveries: Math.floor(summary.total_deliveries * 0.14), earnings: Math.floor(period_30d.cod_collected * 0.18) },
+    { month: 'Oct', deliveries: Math.floor(summary.total_deliveries * 0.16), earnings: Math.floor(period_30d.cod_collected * 0.20) },
+    { month: 'Nov', deliveries: Math.floor(summary.total_deliveries * 0.18), earnings: Math.floor(period_30d.cod_collected * 0.22) },
+    { month: 'Dec', deliveries: Math.floor(summary.total_deliveries * 0.20), earnings: Math.floor(period_30d.cod_collected * 0.25) },
+    { month: 'Jan', deliveries: period_30d.delivered, earnings: Math.floor(period_30d.cod_collected) }
   ];
 
   const hourlyActivity = Array.from({ length: 12 }, (_, i) => ({
@@ -274,7 +265,7 @@ export default function RiderPerformancePage() {
           <div className="flex flex-row sm:flex-col items-center justify-center gap-2 bg-white/10 rounded-xl p-3 sm:p-4">
             <div className="flex items-center gap-1 text-xl sm:text-3xl font-bold">
               <Star className="w-5 h-5 sm:w-8 sm:h-8 text-yellow-300 fill-yellow-300" />
-              {(rider.average_rating || 0).toFixed(1)}
+              {(summary.average_rating || 0).toFixed(1)}
             </div>
             <p className="text-xs sm:text-sm text-white/80">Rating</p>
           </div>
@@ -297,7 +288,7 @@ export default function RiderPerformancePage() {
         </div>
         <div className="bg-white rounded-xl p-3 sm:p-4 border border-slate-100 flex flex-col items-center justify-center">
           <div className="text-center">
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900">{rider.total_deliveries || 0}</div>
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900">{summary.total_deliveries || 0}</div>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">Total</p>
             <p className="text-xs text-slate-400">Deliveries</p>
           </div>
@@ -309,8 +300,8 @@ export default function RiderPerformancePage() {
         <MetricCard
           icon={Package}
           label="Total Deliveries"
-          value={(rider.total_deliveries || 0).toLocaleString()}
-          subValue={`${rider.completed_deliveries || 0} completed`}
+          value={(summary.total_deliveries || 0).toLocaleString()}
+          subValue={`${summary.successful_deliveries || 0} successful`}
           color="from-orange-500 to-amber-500"
         />
         <MetricCard
@@ -321,16 +312,16 @@ export default function RiderPerformancePage() {
         />
         <MetricCard
           icon={Wallet}
-          label="COD Collected"
-          value={`GH₵ ${(rider.cod_collected || 0).toLocaleString()}`}
-          subValue={`GH₵ ${(rider.cod_remitted || 0).toLocaleString()} remitted`}
+          label="COD Collected (30d)"
+          value={`GH₵ ${(period_30d.cod_collected || 0).toLocaleString()}`}
+          subValue={`${period_30d.delivered || 0} orders`}
           color="from-green-500 to-emerald-500"
         />
         <MetricCard
           icon={Navigation}
           label="Vehicle"
           value={(rider.vehicle_type?.charAt(0).toUpperCase() + rider.vehicle_type?.slice(1)) || 'N/A'}
-          subValue={rider.vehicle_registration || 'No registration'}
+          subValue="Active"
           color="from-orange-500 to-amber-500"
         />
       </div>
@@ -444,7 +435,7 @@ export default function RiderPerformancePage() {
             </div>
             <div>
               <p className="text-xl sm:text-2xl font-bold text-slate-900">
-                {(rider.completed_deliveries || 0).toLocaleString()}
+                {(summary.successful_deliveries || 0).toLocaleString()}
               </p>
               <p className="text-xs sm:text-sm text-slate-500">Successful Deliveries</p>
             </div>
@@ -472,7 +463,7 @@ export default function RiderPerformancePage() {
           <div className="w-full bg-slate-200 rounded-full h-2">
             <div 
               className="bg-red-500 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${rider.total_deliveries > 0 ? (failedDeliveries / rider.total_deliveries) * 100 : 0}%` }}
+              style={{ width: `${summary.total_deliveries > 0 ? (failedDeliveries / summary.total_deliveries) * 100 : 0}%` }}
             />
           </div>
         </div>
@@ -484,7 +475,7 @@ export default function RiderPerformancePage() {
             </div>
             <div>
               <p className="text-xl sm:text-2xl font-bold text-slate-900">
-                {(rider.average_rating || 0).toFixed(1)} ⭐
+                {(summary.average_rating || 0).toFixed(1)} ⭐
               </p>
               <p className="text-xs sm:text-sm text-slate-500">Average Rating</p>
             </div>
