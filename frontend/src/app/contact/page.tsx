@@ -48,15 +48,15 @@ const offices = [
     city: 'Accra',
     country: 'Ghana',
     address: '15 Independence Avenue, Airport City',
-    phone: '+233 30 274 5678',
+    phone: '+233 557 553 975',
     flag: '🇬🇭',
   },
   {
-    city: 'Lagos',
-    country: 'Nigeria',
-    address: '42 Adeola Odeku Street, Victoria Island',
-    phone: '+234 1 234 5678',
-    flag: '🇳🇬',
+    city: 'Accra',
+    country: 'Ghana',
+    address: 'Alternative Contact',
+    phone: '+233 208 878 742',
+    flag: '🇬🇭',
   },
 ];
 

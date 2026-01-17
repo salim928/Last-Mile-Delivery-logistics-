@@ -178,7 +178,7 @@ export default function TermsPage() {
                 15 Independence Avenue, Airport City<br />
                 Accra, Ghana<br />
                 Email: legal@movva.io<br />
-                Phone: +233 30 274 5678
+                Phone: +233 557 553 975 / +233 208 878 742
               </p>
             </div>
           </section>
