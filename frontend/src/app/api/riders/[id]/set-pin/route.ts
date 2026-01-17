@@ -19,6 +19,8 @@ export async function POST(
     }
 
     const body = await request.json();
+    
+    console.log('Set PIN request for rider:', id, 'with auth:', authHeader.substring(0, 20) + '...');
 
     const response = await fetch(`${BACKEND_URL}/api/v1/riders/${id}/set-pin/`, {
       method: 'POST',
@@ -30,6 +32,8 @@ export async function POST(
     });
 
     const data = await response.json();
+    
+    console.log('Set PIN response:', response.status, data);
 
     if (!response.ok) {
       return NextResponse.json(data, { status: response.status });

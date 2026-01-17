@@ -854,7 +854,12 @@ function SetPinModal({ rider, onClose }: { rider: any; onClose: () => void }) {
       }, 2000);
     },
     onError: (err: any) => {
-      setError(err.response?.data?.detail || 'Failed to set PIN');
+      console.error('Set PIN error:', err);
+      const errorMessage = err.response?.data?.detail || 
+                          err.response?.data?.message ||
+                          err.message ||
+                          'Failed to set PIN';
+      setError(errorMessage);
     },
   });
 
