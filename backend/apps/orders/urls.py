@@ -20,4 +20,5 @@ urlpatterns = [
     path('<int:pk>/', order_detail_viewset, name='order-detail'),
     path('bulk/', views.OrderViewSet.as_view({'post': 'bulk'}), name='order-bulk'),
     path('upload-csv/', views.OrderViewSet.as_view({'post': 'upload_csv'}), name='order-upload-csv'),
+    path('track/<int:pk>/', views.track_order, name='order-track'),
 ]

@@ -7,7 +7,8 @@ from io import StringIO
 from datetime import date
 from django.db import transaction
 from rest_framework import status, viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 
@@ -22,6 +23,93 @@ from .serializers import (
 from apps.services.geocoding import geocoding_service
 
 logger = logging.getLogger(__name__)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def track_order(request, pk):
+    """Public endpoint to track an order by ID."""
+    try:
+        order = Order.objects.select_related('rider', 'merchant', 'route').get(id=pk)
+    except Order.DoesNotExist:
+        return Response(
+            {'detail': 'Order not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    # Build timeline based on order status
+    status_order = ['pending', 'assigned', 'in_transit', 'delivered']
+    current_index = status_order.index(order.status) if order.status in status_order else 0
+    
+    timeline = [
+        {
+            'id': 'order_placed',
+            'label': 'Order Placed',
+            'description': 'Your order has been confirmed',
+            'completed_at': order.created_at.isoformat() if order.created_at else None
+        },
+        {
+            'id': 'assigned',
+            'label': 'Assigned to Rider',
+            'description': 'A rider has been assigned to your delivery',
+            'completed_at': order.route.created_at.isoformat() if order.route and current_index >= 1 else None
+        },
+        {
+            'id': 'in_transit',
+            'label': 'In Transit',
+            'description': 'Your package is on the way',
+            'completed_at': order.updated_at.isoformat() if current_index >= 2 else None
+        },
+        {
+            'id': 'delivered',
+            'label': 'Delivered',
+            'description': 'Package delivered successfully',
+            'completed_at': order.actual_delivery_time.isoformat() if order.actual_delivery_time else None
+        }
+    ]
+    
+    # Build rider info if assigned
+    rider_data = None
+    if order.rider:
+        rider_data = {
+            'name': order.rider.name,
+            'phone': order.rider.phone_number,
+            'rating': float(order.rider.average_rating) if order.rider.average_rating else 4.5,
+            'vehicle_type': order.rider.vehicle_type.capitalize() if order.rider.vehicle_type else 'Motorcycle'
+        }
+    
+    tracking_data = {
+        'tracking_id': str(order.id),
+        'status': order.status,
+        'estimated_delivery': order.estimated_delivery_time.isoformat() if order.estimated_delivery_time else None,
+        'actual_delivery': order.actual_delivery_time.isoformat() if order.actual_delivery_time else None,
+        'recipient': {
+            'name': order.customer_name,
+            'address': order.delivery_address,
+            'area': order.delivery_landmark or '',
+            'city': order.delivery_city
+        },
+        'sender': {
+            'name': order.merchant.business_name if order.merchant else 'Merchant',
+            'business_name': order.merchant.business_name if order.merchant else None
+        },
+        'rider': rider_data,
+        'package': {
+            'description': order.package_description or 'Package',
+            'weight': f"{order.package_weight_kg}kg" if order.package_weight_kg else None,
+            'is_cod': order.is_cod,
+            'cod_amount': float(order.cod_amount) if order.cod_amount else None
+        },
+        'timeline': timeline,
+        'last_location': {
+            'lat': order.latitude,
+            'lng': order.longitude,
+            'timestamp': order.updated_at.isoformat() if order.updated_at else None,
+            'area': order.delivery_landmark or order.delivery_city
+        } if order.latitude and order.longitude else None
+    }
+    
+    return Response(tracking_data)
 
 
 class OrderViewSet(viewsets.ViewSet):

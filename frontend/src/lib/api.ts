@@ -159,6 +159,12 @@ class ApiClient {
     await this.client.delete(`/orders/${id}`);
   }
 
+  // Public tracking (no auth required)
+  async trackOrder(id: string | number) {
+    const response = await this.client.get(`/orders/track/${id}`);
+    return response.data;
+  }
+
   // Routes
   async getRoutes(params?: { date?: string; status?: string }) {
     const response = await this.client.get('/routes', { params });

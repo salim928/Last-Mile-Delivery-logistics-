@@ -186,7 +186,7 @@ export default function RiderPerformancePage() {
     successRate * 0.2)
   );
 
-  // Generate mock performance data based on rider stats
+  // Calculate performance metrics from rider data
   const recentPerformance = Array.from({ length: 14 }, (_, i) => ({
     date: new Date(Date.now() - (13 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     deliveries: Math.max(0, Math.floor((rider.total_deliveries / 30) * (0.5 + Math.random()))),

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import api from '@/lib/api';
 import { 
   Package, 
   Truck, 
@@ -26,15 +27,16 @@ interface DeliveryStatus {
   id: string;
   label: string;
   description: string;
-  icon: React.ElementType;
+  icon?: React.ElementType;
+  completed_at?: string | null;
   completedAt?: string;
 }
 
 interface TrackingData {
-  trackingId: string;
-  status: 'pending' | 'picked_up' | 'in_transit' | 'out_for_delivery' | 'delivered' | 'failed';
-  estimatedDelivery: string;
-  actualDelivery?: string;
+  tracking_id: string;
+  status: 'pending' | 'assigned' | 'in_transit' | 'delivered' | 'failed' | 'returned';
+  estimated_delivery: string | null;
+  actual_delivery: string | null;
   recipient: {
     name: string;
     address: string;
@@ -43,114 +45,35 @@ interface TrackingData {
   };
   sender: {
     name: string;
-    businessName?: string;
+    business_name?: string;
   };
   rider?: {
     name: string;
     phone: string;
-    photo?: string;
     rating: number;
-    vehicleType: string;
-  };
+    vehicle_type: string;
+  } | null;
   package: {
     description: string;
-    weight?: string;
-    isCOD: boolean;
-    codAmount?: number;
+    weight?: string | null;
+    is_cod: boolean;
+    cod_amount?: number | null;
   };
   timeline: DeliveryStatus[];
-  lastLocation?: {
+  last_location?: {
     lat: number;
     lng: number;
     timestamp: string;
     area: string;
-  };
+  } | null;
 }
 
-// Mock data generator based on tracking ID
-const generateMockData = (trackingId: string): TrackingData => {
-  // Use tracking ID to generate consistent mock data
-  const hash = trackingId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const statuses: TrackingData['status'][] = ['pending', 'picked_up', 'in_transit', 'out_for_delivery', 'delivered'];
-  const currentStatusIndex = hash % 5;
-  const currentStatus = statuses[currentStatusIndex];
-  
-  const areas = ['Osu', 'Cantonments', 'Airport Residential', 'East Legon', 'Labone', 'Dzorwulu', 'Adabraka'];
-  const names = ['Kwame Asante', 'Ama Serwaa', 'Kofi Mensah', 'Akua Boateng', 'Yaw Owusu'];
-  
-  const timeline: DeliveryStatus[] = [
-    {
-      id: 'order_placed',
-      label: 'Order Placed',
-      description: 'Your order has been confirmed',
-      icon: Package,
-      completedAt: '2024-01-15T09:00:00Z'
-    },
-    {
-      id: 'picked_up',
-      label: 'Picked Up',
-      description: 'Package collected from sender',
-      icon: Truck,
-      completedAt: currentStatusIndex >= 1 ? '2024-01-15T10:30:00Z' : undefined
-    },
-    {
-      id: 'in_transit',
-      label: 'In Transit',
-      description: 'On the way to your area',
-      icon: Navigation,
-      completedAt: currentStatusIndex >= 2 ? '2024-01-15T11:15:00Z' : undefined
-    },
-    {
-      id: 'out_for_delivery',
-      label: 'Out for Delivery',
-      description: 'Rider is heading to your location',
-      icon: MapPin,
-      completedAt: currentStatusIndex >= 3 ? '2024-01-15T12:00:00Z' : undefined
-    },
-    {
-      id: 'delivered',
-      label: 'Delivered',
-      description: 'Package delivered successfully',
-      icon: CheckCircle2,
-      completedAt: currentStatusIndex >= 4 ? '2024-01-15T12:45:00Z' : undefined
-    }
-  ];
-
-  return {
-    trackingId,
-    status: currentStatus,
-    estimatedDelivery: '2024-01-15T14:00:00Z',
-    actualDelivery: currentStatus === 'delivered' ? '2024-01-15T12:45:00Z' : undefined,
-    recipient: {
-      name: names[hash % names.length],
-      address: `${(hash % 50) + 1} ${['Main Street', 'Oxford Street', 'Liberation Road', 'Kanda Highway'][hash % 4]}`,
-      area: areas[hash % areas.length],
-      city: 'Accra'
-    },
-    sender: {
-      name: 'Ghana Goods Store',
-      businessName: 'Ghana Goods'
-    },
-    rider: currentStatusIndex >= 1 ? {
-      name: names[(hash + 1) % names.length],
-      phone: `+233 ${20 + (hash % 10)} ${String(hash % 1000).padStart(3, '0')} ${String((hash * 7) % 10000).padStart(4, '0')}`,
-      rating: 4.5 + (hash % 5) * 0.1,
-      vehicleType: hash % 2 === 0 ? 'Motorcycle' : 'Bicycle'
-    } : undefined,
-    package: {
-      description: ['Electronics', 'Clothing', 'Food Items', 'Documents', 'Home Goods'][hash % 5],
-      weight: `${(hash % 5) + 1}kg`,
-      isCOD: hash % 3 === 0,
-      codAmount: hash % 3 === 0 ? (hash % 500) + 50 : undefined
-    },
-    timeline,
-    lastLocation: currentStatusIndex >= 2 ? {
-      lat: 5.5560 + (hash % 100) * 0.001,
-      lng: -0.1969 + (hash % 100) * 0.001,
-      timestamp: new Date().toISOString(),
-      area: areas[(hash + 2) % areas.length]
-    } : undefined
-  };
+// Map status icons for timeline
+const statusIcons: Record<string, React.ElementType> = {
+  order_placed: Package,
+  assigned: Truck,
+  in_transit: Navigation,
+  delivered: CheckCircle2,
 };
 
 // Status Badge Component
@@ -158,43 +81,43 @@ const StatusBadge = ({ status }: { status: TrackingData['status'] }) => {
   const statusConfig = {
     pending: { 
       label: 'Pending', 
-      bg: 'bg-yellow-100 dark:bg-yellow-900/30', 
-      text: 'text-yellow-700 dark:text-yellow-300',
+      bg: 'bg-yellow-100', 
+      text: 'text-yellow-700',
       dot: 'bg-yellow-500'
     },
-    picked_up: { 
-      label: 'Picked Up', 
-      bg: 'bg-blue-100 dark:bg-blue-900/30', 
-      text: 'text-blue-700 dark:text-blue-300',
+    assigned: { 
+      label: 'Assigned', 
+      bg: 'bg-blue-100', 
+      text: 'text-blue-700',
       dot: 'bg-blue-500'
     },
     in_transit: { 
       label: 'In Transit', 
-      bg: 'bg-purple-100 dark:bg-purple-900/30', 
-      text: 'text-purple-700 dark:text-purple-300',
+      bg: 'bg-purple-100', 
+      text: 'text-purple-700',
       dot: 'bg-purple-500 animate-pulse'
-    },
-    out_for_delivery: { 
-      label: 'Out for Delivery', 
-      bg: 'bg-orange-100 dark:bg-orange-900/30', 
-      text: 'text-orange-700 dark:text-orange-300',
-      dot: 'bg-orange-500 animate-pulse'
     },
     delivered: { 
       label: 'Delivered', 
-      bg: 'bg-green-100 dark:bg-green-900/30', 
-      text: 'text-green-700 dark:text-green-300',
+      bg: 'bg-green-100', 
+      text: 'text-green-700',
       dot: 'bg-green-500'
     },
     failed: { 
       label: 'Delivery Failed', 
-      bg: 'bg-red-100 dark:bg-red-900/30', 
-      text: 'text-red-700 dark:text-red-300',
+      bg: 'bg-red-100', 
+      text: 'text-red-700',
       dot: 'bg-red-500'
+    },
+    returned: { 
+      label: 'Returned', 
+      bg: 'bg-slate-100', 
+      text: 'text-slate-700',
+      dot: 'bg-slate-500'
     }
   };
 
-  const config = statusConfig[status];
+  const config = statusConfig[status] || statusConfig.pending;
   
   return (
     <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${config.bg} ${config.text}`}>
@@ -205,11 +128,11 @@ const StatusBadge = ({ status }: { status: TrackingData['status'] }) => {
 };
 
 // ETA Countdown Component
-const ETACountdown = ({ estimatedDelivery, status }: { estimatedDelivery: string; status: string }) => {
+const ETACountdown = ({ estimatedDelivery, status }: { estimatedDelivery: string | null; status: string }) => {
   const [timeLeft, setTimeLeft] = useState<{ hours: number; minutes: number } | null>(null);
 
   useEffect(() => {
-    if (status === 'delivered') return;
+    if (status === 'delivered' || !estimatedDelivery) return;
 
     const updateCountdown = () => {
       const now = new Date();
@@ -233,17 +156,17 @@ const ETACountdown = ({ estimatedDelivery, status }: { estimatedDelivery: string
   if (status === 'delivered') {
     return (
       <div className="text-center">
-        <div className="text-3xl font-bold text-green-600 dark:text-green-400">✓</div>
-        <div className="text-sm text-gray-500 dark:text-gray-400">Delivered</div>
+        <div className="text-3xl font-bold text-green-600">✓</div>
+        <div className="text-sm text-slate-500">Delivered</div>
       </div>
     );
   }
 
-  if (!timeLeft) {
+  if (!estimatedDelivery || !timeLeft) {
     return (
       <div className="text-center">
-        <div className="text-lg font-medium text-orange-600 dark:text-orange-400">Arriving Soon</div>
-        <div className="text-sm text-gray-500 dark:text-gray-400">ETA passed</div>
+        <div className="text-lg font-medium text-orange-600">In Progress</div>
+        <div className="text-sm text-slate-500">ETA to be confirmed</div>
       </div>
     );
   }
@@ -271,9 +194,11 @@ const DeliveryTimeline = ({ timeline, currentStatus }: { timeline: DeliveryStatu
   return (
     <div className="space-y-0">
       {timeline.map((step, index) => {
-        const isCompleted = !!step.completedAt;
-        const isCurrent = !isCompleted && (index === 0 || timeline[index - 1].completedAt);
-        const Icon = step.icon;
+        const completedAt = step.completed_at || step.completedAt;
+        const isCompleted = !!completedAt;
+        const prevCompletedAt = index > 0 ? (timeline[index - 1].completed_at || timeline[index - 1].completedAt) : null;
+        const isCurrent = !isCompleted && (index === 0 || prevCompletedAt);
+        const Icon = statusIcons[step.id] || Package;
         
         return (
           <div key={step.id} className="relative flex gap-4">
@@ -281,7 +206,7 @@ const DeliveryTimeline = ({ timeline, currentStatus }: { timeline: DeliveryStatu
             {index < timeline.length - 1 && (
               <div 
                 className={`absolute left-5 top-10 w-0.5 h-16 ${
-                  isCompleted ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'
+                  isCompleted ? 'bg-green-500' : 'bg-slate-200'
                 }`} 
               />
             )}
@@ -293,7 +218,7 @@ const DeliveryTimeline = ({ timeline, currentStatus }: { timeline: DeliveryStatu
                 ? 'bg-green-500 text-white' 
                 : isCurrent 
                   ? 'bg-orange-500 text-white animate-pulse' 
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
+                  : 'bg-slate-200 text-slate-400'
               }
             `}>
               <Icon className="w-5 h-5" />
@@ -304,14 +229,14 @@ const DeliveryTimeline = ({ timeline, currentStatus }: { timeline: DeliveryStatu
               <div className="flex items-center justify-between">
                 <h4 className={`font-medium ${
                   isCompleted || isCurrent 
-                    ? 'text-gray-900 dark:text-white' 
-                    : 'text-gray-400 dark:text-gray-500'
+                    ? 'text-slate-900' 
+                    : 'text-slate-400'
                 }`}>
                   {step.label}
                 </h4>
-                {step.completedAt && (
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {new Date(step.completedAt).toLocaleTimeString('en-US', { 
+                {completedAt && (
+                  <span className="text-sm text-slate-500">
+                    {new Date(completedAt).toLocaleTimeString('en-US', { 
                       hour: 'numeric', 
                       minute: '2-digit',
                       hour12: true 
@@ -321,8 +246,8 @@ const DeliveryTimeline = ({ timeline, currentStatus }: { timeline: DeliveryStatu
               </div>
               <p className={`text-sm ${
                 isCompleted || isCurrent 
-                  ? 'text-gray-600 dark:text-gray-300' 
-                  : 'text-gray-400 dark:text-gray-500'
+                  ? 'text-slate-600' 
+                  : 'text-slate-400'
               }`}>
                 {step.description}
               </p>
@@ -337,18 +262,18 @@ const DeliveryTimeline = ({ timeline, currentStatus }: { timeline: DeliveryStatu
 // Rider Card Component
 const RiderCard = ({ rider }: { rider: NonNullable<TrackingData['rider']> }) => {
   return (
-    <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-2xl p-5 border border-orange-100 dark:border-orange-800">
+    <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-5 border border-orange-100">
       <div className="flex items-center gap-4">
         <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-amber-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
           {rider.name.charAt(0)}
         </div>
         <div className="flex-1">
-          <h3 className="font-semibold text-gray-900 dark:text-white">{rider.name}</h3>
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+          <h3 className="font-semibold text-slate-900">{rider.name}</h3>
+          <div className="flex items-center gap-2 text-sm text-slate-500">
             <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
             <span>{rider.rating.toFixed(1)}</span>
             <span>•</span>
-            <span>{rider.vehicleType}</span>
+            <span>{rider.vehicle_type}</span>
           </div>
         </div>
       </div>
@@ -356,7 +281,7 @@ const RiderCard = ({ rider }: { rider: NonNullable<TrackingData['rider']> }) => 
       <div className="flex gap-3 mt-4">
         <a 
           href={`tel:${rider.phone}`}
-          className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-gray-800 text-orange-600 dark:text-orange-400 py-2.5 rounded-xl font-medium hover:bg-orange-50 dark:hover:bg-gray-700 transition-colors border border-orange-200 dark:border-orange-800"
+          className="flex-1 flex items-center justify-center gap-2 bg-white text-orange-600 py-2.5 rounded-xl font-medium hover:bg-orange-50 transition-colors border border-orange-200"
         >
           <Phone className="w-4 h-4" />
           Call
@@ -376,15 +301,15 @@ const RiderCard = ({ rider }: { rider: NonNullable<TrackingData['rider']> }) => 
 };
 
 // Live Map Placeholder
-const LiveMapPlaceholder = ({ location }: { location?: TrackingData['lastLocation'] }) => {
+const LiveMapPlaceholder = ({ location }: { location?: TrackingData['last_location'] }) => {
   return (
-    <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-2xl h-64 overflow-hidden">
+    <div className="relative bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl h-64 overflow-hidden">
       {/* Map Background Pattern */}
       <div className="absolute inset-0 opacity-30">
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-gray-400" />
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-slate-400" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
@@ -406,14 +331,14 @@ const LiveMapPlaceholder = ({ location }: { location?: TrackingData['lastLocatio
       
       {/* Location Info Overlay */}
       {location && (
-        <div className="absolute bottom-4 left-4 right-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl p-3">
+        <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm rounded-xl p-3">
           <div className="flex items-center gap-2 text-sm">
             <MapPin className="w-4 h-4 text-orange-500" />
-            <span className="font-medium text-gray-900 dark:text-white">
+            <span className="font-medium text-slate-900">
               Currently in {location.area}
             </span>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Updated {new Date(location.timestamp).toLocaleTimeString()}
           </p>
         </div>
@@ -421,7 +346,7 @@ const LiveMapPlaceholder = ({ location }: { location?: TrackingData['lastLocatio
       
       {!location && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-gray-500 dark:text-gray-400">
+          <div className="text-center text-slate-500">
             <MapPin className="w-10 h-10 mx-auto mb-2 opacity-50" />
             <p className="text-sm">Live tracking will appear here</p>
             <p className="text-xs">once the rider picks up your package</p>
@@ -441,22 +366,23 @@ export default function TrackingPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate API call with mock data
     const fetchTrackingData = async () => {
       setLoading(true);
+      setError(null);
       try {
-        // In production, this would be a real API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const data = generateMockData(trackingId);
+        const data = await api.trackOrder(trackingId);
         setTrackingData(data);
-      } catch (err) {
-        setError('Unable to find tracking information. Please check your tracking ID.');
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Unable to find tracking information. Please check your tracking ID.';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTrackingData();
+    if (trackingId) {
+      fetchTrackingData();
+    }
   }, [trackingId]);
 
   const handleShare = async () => {
@@ -480,10 +406,10 @@ export default function TrackingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 text-orange-500 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Loading tracking information...</p>
+          <p className="text-slate-600">Loading tracking information...</p>
         </div>
       </div>
     );
@@ -491,20 +417,20 @@ export default function TrackingPage() {
 
   if (error || !trackingData) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md w-full text-center shadow-xl">
-          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-xl">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-red-500" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+          <h2 className="text-xl font-bold text-slate-900 mb-2">
             Tracking Not Found
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-slate-600 mb-6">
             {error || 'We couldn\'t find any delivery with this tracking ID.'}
           </p>
           <Link 
             href="/"
-            className="inline-flex items-center gap-2 text-orange-600 dark:text-orange-400 font-medium hover:underline"
+            className="inline-flex items-center gap-2 text-orange-600 font-medium hover:underline"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Home
@@ -515,14 +441,14 @@ export default function TrackingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link 
               href="/"
-              className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+              className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               <span className="font-medium">Back</span>
@@ -537,10 +463,10 @@ export default function TrackingPage() {
             
             <button
               onClick={handleShare}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
               title="Share tracking link"
             >
-              <Share2 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <Share2 className="w-5 h-5 text-slate-600" />
             </button>
           </div>
         </div>
@@ -549,11 +475,11 @@ export default function TrackingPage() {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* Status Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Tracking ID</p>
-              <p className="font-mono text-lg font-bold text-gray-900 dark:text-white">{trackingData.trackingId}</p>
+              <p className="text-sm text-slate-500 mb-1">Tracking ID</p>
+              <p className="font-mono text-lg font-bold text-slate-900">{trackingData.tracking_id}</p>
               <div className="mt-2">
                 <StatusBadge status={trackingData.status} />
               </div>
@@ -561,7 +487,7 @@ export default function TrackingPage() {
             
             <div className="md:text-right">
               <ETACountdown 
-                estimatedDelivery={trackingData.estimatedDelivery} 
+                estimatedDelivery={trackingData.estimated_delivery} 
                 status={trackingData.status}
               />
             </div>
@@ -569,18 +495,18 @@ export default function TrackingPage() {
         </div>
 
         {/* Live Map */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <Navigation className="w-5 h-5 text-orange-500" />
             Live Tracking
           </h2>
-          <LiveMapPlaceholder location={trackingData.lastLocation} />
+          <LiveMapPlaceholder location={trackingData.last_location} />
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Timeline */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <Clock className="w-5 h-5 text-blue-500" />
               Delivery Progress
             </h2>
@@ -592,7 +518,7 @@ export default function TrackingPage() {
             {/* Rider Info */}
             {trackingData.rider && (
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
                   <Truck className="w-5 h-5 text-orange-500" />
                   Your Rider
                 </h2>
@@ -601,35 +527,35 @@ export default function TrackingPage() {
             )}
 
             {/* Delivery Details */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+              <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
                 <Package className="w-5 h-5 text-purple-500" />
                 Package Details
               </h2>
               
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Description</p>
-                  <p className="font-medium text-gray-900 dark:text-white">{trackingData.package.description}</p>
+                  <p className="text-sm text-slate-500">Description</p>
+                  <p className="font-medium text-slate-900">{trackingData.package.description}</p>
                 </div>
                 
                 {trackingData.package.weight && (
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Weight</p>
-                    <p className="font-medium text-gray-900 dark:text-white">{trackingData.package.weight}</p>
+                    <p className="text-sm text-slate-500">Weight</p>
+                    <p className="font-medium text-slate-900">{trackingData.package.weight}</p>
                   </div>
                 )}
                 
-                {trackingData.package.isCOD && (
-                  <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-4 border border-yellow-200 dark:border-yellow-800">
-                    <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-300">
+                {trackingData.package.is_cod && (
+                  <div className="bg-yellow-50 rounded-xl p-4 border border-yellow-200">
+                    <div className="flex items-center gap-2 text-yellow-700">
                       <Shield className="w-5 h-5" />
                       <span className="font-medium">Cash on Delivery</span>
                     </div>
-                    <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-300 mt-1">
-                      GH₵ {trackingData.package.codAmount?.toFixed(2)}
+                    <p className="text-2xl font-bold text-yellow-700 mt-1">
+                      GH₵ {trackingData.package.cod_amount?.toFixed(2)}
                     </p>
-                    <p className="text-sm text-yellow-600 dark:text-yellow-400 mt-1">
+                    <p className="text-sm text-yellow-600 mt-1">
                       Please have exact amount ready
                     </p>
                   </div>
@@ -638,17 +564,17 @@ export default function TrackingPage() {
             </div>
 
             {/* Delivery Address */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+              <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-green-500" />
                 Delivery Address
               </h2>
               
               <div className="space-y-2">
-                <p className="font-medium text-gray-900 dark:text-white">{trackingData.recipient.name}</p>
-                <p className="text-gray-600 dark:text-gray-400">{trackingData.recipient.address}</p>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {trackingData.recipient.area}, {trackingData.recipient.city}
+                <p className="font-medium text-slate-900">{trackingData.recipient.name}</p>
+                <p className="text-slate-600">{trackingData.recipient.address}</p>
+                <p className="text-slate-600">
+                  {trackingData.recipient.area}{trackingData.recipient.area ? ', ' : ''}{trackingData.recipient.city}
                 </p>
               </div>
             </div>
@@ -656,41 +582,41 @@ export default function TrackingPage() {
         </div>
 
         {/* Trust Badges */}
-        <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/10 dark:to-amber-900/10 rounded-2xl p-6 border border-orange-100 dark:border-orange-800/50">
+        <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-6 border border-orange-100">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm">
                 <Shield className="w-6 h-6 text-green-500" />
               </div>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">Secure</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Delivery</p>
+              <p className="text-sm font-medium text-slate-900">Secure</p>
+              <p className="text-xs text-slate-500">Delivery</p>
             </div>
             <div>
-              <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm">
                 <Zap className="w-6 h-6 text-orange-500" />
               </div>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">Real-time</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Updates</p>
+              <p className="text-sm font-medium text-slate-900">Real-time</p>
+              <p className="text-xs text-slate-500">Updates</p>
             </div>
             <div>
-              <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-2 shadow-sm">
                 <Phone className="w-6 h-6 text-blue-500" />
               </div>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">24/7</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Support</p>
+              <p className="text-sm font-medium text-slate-900">24/7</p>
+              <p className="text-xs text-slate-500">Support</p>
             </div>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-8">
+      <footer className="bg-white border-t border-slate-200 mt-8">
         <div className="max-w-4xl mx-auto px-4 py-6 text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Powered by <span className="font-semibold text-orange-600 dark:text-orange-400">Movva</span>
+          <p className="text-sm text-slate-500">
+            Powered by <span className="font-semibold text-orange-600">Movva</span>
           </p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-            Ghana's Most Trusted Delivery Platform
+          <p className="text-xs text-slate-400 mt-1">
+            Ghana&apos;s Most Trusted Delivery Platform
           </p>
         </div>
       </footer>
