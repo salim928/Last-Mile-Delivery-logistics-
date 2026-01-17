@@ -24,6 +24,10 @@ import {
   AlertCircle,
   RefreshCw,
   BarChart3,
+  Edit3,
+  Trash2,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import clsx from 'clsx';
 import api from '@/lib/api';
@@ -39,10 +43,13 @@ export default function RidersPage() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedRider, setSelectedRider] = useState<any>(null);
   const [showPinModal, setShowPinModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
+  const [activeMenu, setActiveMenu] = useState<number | null>(null);
 
   const { data: riders, isLoading, refetch } = useQuery({
     queryKey: ['riders'],
@@ -83,12 +90,29 @@ export default function RidersPage() {
   }, [riders]);
 
   const handleSetPin = (rider: any) => {
+    setActiveMenu(null);
     setSelectedRider(rider);
     setShowPinModal(true);
   };
 
+  const handleEditRider = (rider: any) => {
+    setActiveMenu(null);
+    setSelectedRider(rider);
+    setShowEditModal(true);
+  };
+
+  const handleDeleteRider = (rider: any) => {
+    setActiveMenu(null);
+    setSelectedRider(rider);
+    setShowDeleteModal(true);
+  };
+
+  const toggleMenu = (riderId: number) => {
+    setActiveMenu(activeMenu === riderId ? null : riderId);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" onClick={() => setActiveMenu(null)}>
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
@@ -223,6 +247,57 @@ export default function RidersPage() {
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Actions Menu */}
+                    <div className="relative">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); toggleMenu(rider.id); }}
+                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                      >
+                        <MoreVertical className="w-5 h-5 text-slate-400" />
+                      </button>
+                      
+                      {activeMenu === rider.id && (
+                        <div 
+                          className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-20"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            onClick={() => handleSetPin(rider)}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                          >
+                            <Key className="w-4 h-4 text-amber-500" />
+                            Set Login PIN
+                          </button>
+                          <button
+                            onClick={() => handleEditRider(rider)}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                          >
+                            <Edit3 className="w-4 h-4 text-blue-500" />
+                            Edit Details
+                          </button>
+                          <button
+                            onClick={() => router.push(`/dashboard/riders/performance/${rider.id}`)}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                          >
+                            <BarChart3 className="w-4 h-4 text-green-500" />
+                            View Performance
+                          </button>
+                          <div className="border-t border-slate-100 my-1" />
+                          <button
+                            onClick={() => handleDeleteRider(rider)}
+                            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Delete Rider
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Status Badge */}
+                  <div className="mt-3">
                     <span className={clsx(
                       'px-3 py-1 rounded-full text-xs font-semibold',
                       status.bgColor,
@@ -288,11 +363,11 @@ export default function RidersPage() {
                   {/* Set PIN Button */}
                   <div className="flex gap-2">
                     <button
-                      onClick={() => router.push(`/dashboard/riders/performance/${rider.id}`)}
-                      className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-orange-50 text-orange-700 rounded-xl border border-orange-200 hover:bg-orange-100 transition-colors text-sm font-medium"
+                      onClick={() => handleEditRider(rider)}
+                      className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-blue-50 text-blue-700 rounded-xl border border-blue-200 hover:bg-blue-100 transition-colors text-sm font-medium"
                     >
-                      <BarChart3 className="w-4 h-4" />
-                      Performance
+                      <Edit3 className="w-4 h-4" />
+                      Edit
                     </button>
                     <button
                       onClick={() => handleSetPin(rider)}
@@ -311,6 +386,28 @@ export default function RidersPage() {
 
       {/* Add Rider Modal */}
       {showAddModal && <AddRiderModal onClose={() => setShowAddModal(false)} />}
+      
+      {/* Edit Rider Modal */}
+      {showEditModal && selectedRider && (
+        <EditRiderModal 
+          rider={selectedRider} 
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedRider(null);
+          }} 
+        />
+      )}
+      
+      {/* Delete Rider Modal */}
+      {showDeleteModal && selectedRider && (
+        <DeleteRiderModal 
+          rider={selectedRider} 
+          onClose={() => {
+            setShowDeleteModal(false);
+            setSelectedRider(null);
+          }} 
+        />
+      )}
       
       {/* Set PIN Modal */}
       {showPinModal && selectedRider && (
@@ -506,6 +603,237 @@ function AddRiderModal({ onClose }: { onClose: () => void }) {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+}
+
+function EditRiderModal({ rider, onClose }: { rider: any; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const [formData, setFormData] = useState({
+    name: rider.name || '',
+    phone_number: rider.phone_number || '',
+    vehicle_type: rider.vehicle_type || 'motorbike',
+    vehicle_registration: rider.vehicle_registration || '',
+    status: rider.status || 'offline',
+    is_active: rider.is_active ?? true,
+  });
+  const [error, setError] = useState<string | null>(null);
+
+  const updateMutation = useMutation({
+    mutationFn: (data: any) => api.updateRider(rider.id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['riders'] });
+      onClose();
+    },
+    onError: (err: any) => {
+      const errorData = err?.response?.data;
+      if (errorData?.phone_number) {
+        setError(`Phone number: ${Array.isArray(errorData.phone_number) ? errorData.phone_number[0] : errorData.phone_number}`);
+      } else if (errorData?.detail) {
+        setError(errorData.detail);
+      } else {
+        setError('Failed to update rider. Please try again.');
+      }
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    updateMutation.mutate(formData);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-slate-200 flex items-center justify-between sticky top-0 bg-white">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">Edit Rider</h2>
+            <p className="text-sm text-slate-500">Update rider details</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5 text-slate-500" />
+          </button>
+        </div>
+        
+        {error && (
+          <div className="mx-6 mt-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+            <p className="text-red-800 text-sm">{error}</p>
+          </div>
+        )}
+        
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          <div>
+            <label className="label">Full Name *</label>
+            <input
+              type="text"
+              required
+              className="input"
+              placeholder="Enter rider's full name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="label">Phone Number *</label>
+            <input
+              type="tel"
+              required
+              className="input"
+              placeholder="+233 XX XXX XXXX"
+              value={formData.phone_number}
+              onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="label">Vehicle Type</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, vehicle_type: 'motorbike' })}
+                className={clsx(
+                  'flex items-center gap-3 p-4 rounded-xl border-2 transition-all',
+                  formData.vehicle_type === 'motorbike'
+                    ? 'border-navy-500 bg-navy-50'
+                    : 'border-slate-200 hover:border-slate-300'
+                )}
+              >
+                <Bike className={clsx('w-6 h-6', formData.vehicle_type === 'motorbike' ? 'text-navy-600' : 'text-slate-400')} />
+                <span className={clsx('font-medium', formData.vehicle_type === 'motorbike' ? 'text-navy-700' : 'text-slate-600')}>
+                  Motorbike
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, vehicle_type: 'van' })}
+                className={clsx(
+                  'flex items-center gap-3 p-4 rounded-xl border-2 transition-all',
+                  formData.vehicle_type === 'van'
+                    ? 'border-navy-500 bg-navy-50'
+                    : 'border-slate-200 hover:border-slate-300'
+                )}
+              >
+                <Truck className={clsx('w-6 h-6', formData.vehicle_type === 'van' ? 'text-navy-600' : 'text-slate-400')} />
+                <span className={clsx('font-medium', formData.vehicle_type === 'van' ? 'text-navy-700' : 'text-slate-600')}>
+                  Van
+                </span>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label className="label">Vehicle Registration</label>
+            <input
+              type="text"
+              className="input"
+              placeholder="e.g., GR-1234-21"
+              value={formData.vehicle_registration}
+              onChange={(e) => setFormData({ ...formData, vehicle_registration: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="label">Status</label>
+            <select
+              className="input"
+              value={formData.status}
+              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+            >
+              <option value="available">Available</option>
+              <option value="on_route">On Route</option>
+              <option value="offline">Offline</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="is_active"
+              checked={formData.is_active}
+              onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+              className="w-4 h-4 text-navy-600 rounded border-slate-300 focus:ring-navy-500"
+            />
+            <label htmlFor="is_active" className="text-sm text-slate-700">
+              Active rider (can be assigned to routes)
+            </label>
+          </div>
+          <div className="flex gap-3 pt-4 border-t border-slate-200">
+            <button type="button" onClick={onClose} className="btn-secondary flex-1">
+              Cancel
+            </button>
+            <button type="submit" disabled={updateMutation.isPending} className="btn-primary flex-1">
+              {updateMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  Save Changes
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function DeleteRiderModal({ rider, onClose }: { rider: any; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const [error, setError] = useState<string | null>(null);
+
+  const deleteMutation = useMutation({
+    mutationFn: () => api.deleteRider(rider.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['riders'] });
+      onClose();
+    },
+    onError: (err: any) => {
+      setError(err?.response?.data?.detail || 'Failed to delete rider. Please try again.');
+    },
+  });
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl">
+        <div className="p-6 text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Trash2 className="w-8 h-8 text-red-600" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Delete Rider?</h2>
+          <p className="text-slate-500">
+            Are you sure you want to delete <strong>{rider.name}</strong>? This action cannot be undone.
+          </p>
+          
+          {error && (
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+              <p className="text-red-800 text-sm">{error}</p>
+            </div>
+          )}
+          
+          <div className="flex gap-3 mt-6">
+            <button onClick={onClose} className="btn-secondary flex-1">
+              Cancel
+            </button>
+            <button 
+              onClick={() => deleteMutation.mutate()} 
+              disabled={deleteMutation.isPending}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-semibold disabled:opacity-50"
+            >
+              {deleteMutation.isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
