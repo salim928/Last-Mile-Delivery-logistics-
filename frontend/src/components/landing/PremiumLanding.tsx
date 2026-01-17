@@ -121,7 +121,10 @@ export default function PremiumLanding() {
             {/* Mobile Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2.5 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+              className="lg:hidden p-3 -mr-2 text-slate-600 hover:bg-slate-100 active:bg-slate-200 rounded-xl transition-colors"
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
+              type="button"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -129,45 +132,43 @@ export default function PremiumLanding() {
         </div>
 
         {/* Mobile Menu */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-white border-t border-gray-100"
-            >
-              <div className="px-6 py-6 space-y-2">
-                {[
-                  { label: 'Features', href: '/features' },
-                  { label: 'Pricing', href: '/pricing' },
-                  { label: 'Demo', href: '/demo' },
-                  { label: 'Resources', href: '/resources' },
-                ].map((item) => (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    className="block py-3 px-4 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-                <div className="pt-4 mt-4 border-t border-gray-100 space-y-3">
-                  <Link href="/login" className="block py-3 px-4 text-slate-600 font-medium">
-                    Sign in
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="block py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl text-center font-semibold shadow-lg shadow-orange-500/25"
-                  >
-                    Get Started Free
-                  </Link>
-                </div>
+        {mobileMenuOpen && (
+          <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-t border-slate-100 shadow-xl">
+            <div className="px-4 py-4 space-y-1">
+              {[
+                { label: 'Features', href: '/features' },
+                { label: 'Pricing', href: '/pricing' },
+                { label: 'Demo', href: '/demo' },
+                { label: 'Resources', href: '/resources' },
+              ].map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="block py-3 px-4 text-base text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <div className="pt-4 mt-2 border-t border-slate-100 space-y-2">
+                <Link
+                  href="/login"
+                  className="block py-3 px-4 text-base text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl font-medium transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/register"
+                  className="block py-3 px-4 text-center text-base text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 rounded-xl font-semibold shadow-lg shadow-orange-500/25 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Get Started Free
+                </Link>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* ================================================================

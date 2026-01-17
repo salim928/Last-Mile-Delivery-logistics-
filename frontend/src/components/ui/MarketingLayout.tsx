@@ -82,7 +82,10 @@ export default function MarketingLayout({ children, showCTA = true }: MarketingL
 
             {/* Mobile Toggle */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setMobileMenuOpen(!mobileMenuOpen);
+              }}
               className="lg:hidden p-3 -mr-2 text-slate-600 hover:bg-slate-100 active:bg-slate-200 rounded-xl transition-colors touch-manipulation"
               aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={mobileMenuOpen}
@@ -93,52 +96,46 @@ export default function MarketingLayout({ children, showCTA = true }: MarketingL
         </div>
 
         {/* Mobile Menu */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
-              className="lg:hidden bg-white/95 backdrop-blur-xl border-t border-slate-100 overflow-hidden"
-            >
-              <div className="px-4 py-4 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto safe-area-bottom">
-                {[
-                  { label: 'Features', href: '/features' },
-                  { label: 'Pricing', href: '/pricing' },
-                  { label: 'Demo', href: '/demo' },
-                  { label: 'Resources', href: '/resources' },
-                  { label: 'Contact', href: '/contact' },
-                ].map((item) => (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block py-4 px-4 text-base text-slate-600 hover:text-slate-900 active:bg-slate-100 hover:bg-slate-50 rounded-xl font-medium transition-colors touch-manipulation"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-                <div className="pt-4 mt-2 border-t border-slate-100 space-y-2">
-                  <Link
-                    href="/login"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block py-4 px-4 text-base text-slate-600 hover:text-slate-900 active:bg-slate-100 hover:bg-slate-50 rounded-xl font-medium transition-colors touch-manipulation"
-                  >
-                    Sign in
-                  </Link>
-                  <Link
-                    href="/demo"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block py-4 px-4 text-center text-base text-white bg-gradient-to-r from-orange-500 to-amber-500 active:from-orange-600 active:to-amber-600 rounded-xl font-semibold transition-colors touch-manipulation"
-                  >
-                    Try Demo
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div
+          className={`lg:hidden bg-white/95 backdrop-blur-xl border-t border-slate-100 overflow-hidden transition-all duration-300 ease-out ${
+            mobileMenuOpen ? 'max-h-[80vh] opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="px-4 py-4 space-y-1 max-h-[calc(100vh-5rem)] overflow-y-auto safe-area-bottom">
+            {[
+              { label: 'Features', href: '/features' },
+              { label: 'Pricing', href: '/pricing' },
+              { label: 'Demo', href: '/demo' },
+              { label: 'Resources', href: '/resources' },
+              { label: 'Contact', href: '/contact' },
+            ].map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-4 px-4 text-base text-slate-600 hover:text-slate-900 active:bg-slate-100 hover:bg-slate-50 rounded-xl font-medium transition-colors touch-manipulation"
+              >
+                {item.label}
+              </Link>
+            ))}
+            <div className="pt-4 mt-2 border-t border-slate-100 space-y-2">
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-4 px-4 text-base text-slate-600 hover:text-slate-900 active:bg-slate-100 hover:bg-slate-50 rounded-xl font-medium transition-colors touch-manipulation"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/demo"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-4 px-4 text-center text-base text-white bg-gradient-to-r from-orange-500 to-amber-500 active:from-orange-600 active:to-amber-600 rounded-xl font-semibold transition-colors touch-manipulation"
+              >
+                Try Demo
+              </Link>
+            </div>
+          </div>
+        </div>
       </nav>
 
       {/* Main Content */}

@@ -88,9 +88,22 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const { merchant, isAuthenticated, isHydrated, logout } = useAuthStore();
-  const { sidebarOpen, toggleSidebar } = useUIStore();
+  const { sidebarOpen, toggleSidebar, setSidebarOpen } = useUIStore();
   const [searchFocused, setSearchFocused] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  // Close sidebar on mobile by default
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setSidebarOpen(false);
+      }
+    };
+    // Run on mount
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [setSidebarOpen]);
 
   // Fetch notifications
   const { data: notificationsData, isLoading: notificationsLoading } = useQuery({
@@ -144,6 +157,13 @@ export default function DashboardLayout({
       router.push('/login');
     }
   }, [isAuthenticated, isHydrated, router]);
+
+  // Close sidebar on mobile when navigating
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, [pathname, setSidebarOpen]);
 
   // Memoized logout handler
   const handleLogout = useCallback(() => {
