@@ -148,9 +148,9 @@ export default function OrdersPage() {
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Orders</h1>
-          <p className="text-slate-600 mt-1">Manage and track your delivery orders</p>
+          <p className="text-slate-600 mt-1 text-sm sm:text-base">Manage and track your delivery orders</p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2 sm:gap-3">
           <input
             ref={fileInputRef}
             type="file"
@@ -160,7 +160,7 @@ export default function OrdersPage() {
           />
           <button
             onClick={() => refetch()}
-            className="btn-secondary"
+            className="btn-secondary p-2.5 sm:p-3"
             title="Refresh"
           >
             <RefreshCw className="w-4 h-4" />
@@ -168,21 +168,23 @@ export default function OrdersPage() {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploadMutation.isPending}
-            className="btn-secondary"
+            className="btn-secondary text-sm"
           >
             {uploadMutation.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <Upload className="w-4 h-4" />
             )}
-            Upload CSV
+            <span className="hidden sm:inline">Upload CSV</span>
+            <span className="sm:hidden">CSV</span>
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="btn-primary"
+            className="btn-primary text-sm"
           >
             <Plus className="w-4 h-4" />
-            Add Order
+            <span className="hidden sm:inline">Add Order</span>
+            <span className="sm:hidden">Add</span>
           </button>
         </div>
       </div>
@@ -326,10 +328,10 @@ export default function OrdersPage() {
                 <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-6 py-4">
                   Customer
                 </th>
-                <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-6 py-4">
+                <th className="hidden md:table-cell text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-6 py-4">
                   Delivery Location
                 </th>
-                <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-6 py-4">
+                <th className="hidden sm:table-cell text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-6 py-4">
                   COD
                 </th>
                 <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-6 py-4">
@@ -398,7 +400,7 @@ export default function OrdersPage() {
                           </p>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="hidden md:table-cell px-6 py-4">
                         <div className="flex items-start gap-2">
                           <MapPin className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
                           <div>
@@ -409,7 +411,7 @@ export default function OrdersPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="hidden sm:table-cell px-6 py-4">
                         {order.is_cod ? (
                           <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded-lg font-semibold text-sm">
                             GHS {order.cod_amount}
@@ -443,7 +445,7 @@ export default function OrdersPage() {
                             <MoreVertical className="w-4 h-4" />
                           </button>
                           {activeDropdown === order.id && (
-                            <div className="absolute right-6 top-12 z-20 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-1">
+                            <div className="absolute right-0 sm:right-6 top-12 z-20 w-48 bg-white border border-slate-200 rounded-xl shadow-xl py-1 max-h-[60vh] overflow-y-auto">
                               <button
                                 onClick={() => {
                                   setActiveDropdown(null);

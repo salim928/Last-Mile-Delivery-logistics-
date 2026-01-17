@@ -117,17 +117,17 @@ export default function RidersPage() {
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Riders</h1>
-          <p className="text-slate-600 mt-1">Manage your delivery personnel and track performance</p>
+          <p className="text-slate-600 mt-1 text-sm sm:text-base">Manage your delivery personnel and track performance</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-2 sm:gap-3">
           <button
             onClick={() => refetch()}
-            className="btn-secondary"
+            className="btn-secondary p-2.5 sm:p-3"
             title="Refresh"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
-          <button onClick={() => setShowAddModal(true)} className="btn-primary">
+          <button onClick={() => setShowAddModal(true)} className="btn-primary text-sm">
             <Plus className="w-4 h-4" />
             Add Rider
           </button>

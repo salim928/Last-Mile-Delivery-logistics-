@@ -130,18 +130,19 @@ export default function RoutesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
             <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">Routes</span>
             <Sparkles className="w-5 h-5 text-purple-500" />
           </h1>
-          <p className="text-slate-600 mt-1">Optimize and manage your delivery routes</p>
+          <p className="text-slate-600 mt-1 text-sm sm:text-base">Optimize and manage your delivery routes</p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="btn-primary"
+          className="btn-primary text-sm"
         >
           <Plus className="w-4 h-4" />
-          Create Route
+          <span className="hidden sm:inline">Create Route</span>
+          <span className="sm:hidden">Create</span>
         </button>
       </div>
 

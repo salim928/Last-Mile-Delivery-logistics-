@@ -403,25 +403,39 @@ export default function DashboardLayout({
                 
                 {/* Notification dropdown */}
                 {notificationsOpen && (
-                  <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-strong border border-slate-200 overflow-hidden animate-slide-down z-50">
-                    <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-                      <div>
-                        <h3 className="font-semibold text-slate-900">Notifications</h3>
-                        {unreadCount > 0 && (
-                          <p className="text-xs text-slate-500">{unreadCount} unread</p>
-                        )}
+                  <>
+                    {/* Mobile backdrop */}
+                    <div 
+                      className="fixed inset-0 bg-black/20 z-40 sm:hidden" 
+                      onClick={() => setNotificationsOpen(false)}
+                    />
+                    <div className="fixed left-4 right-4 top-20 sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 w-auto sm:w-96 bg-white rounded-2xl shadow-strong border border-slate-200 overflow-hidden animate-slide-down z-50">
+                      <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                        <div>
+                          <h3 className="font-semibold text-slate-900">Notifications</h3>
+                          {unreadCount > 0 && (
+                            <p className="text-xs text-slate-500">{unreadCount} unread</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {unreadCount > 0 && (
+                            <button
+                              onClick={() => markAllReadMutation.mutate()}
+                              className="text-xs font-medium text-navy-600 hover:text-navy-700"
+                              disabled={markAllReadMutation.isPending}
+                            >
+                              Mark all read
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setNotificationsOpen(false)}
+                            className="p-1 hover:bg-slate-100 rounded sm:hidden"
+                          >
+                            <X className="w-4 h-4 text-slate-500" />
+                          </button>
+                        </div>
                       </div>
-                      {unreadCount > 0 && (
-                        <button
-                          onClick={() => markAllReadMutation.mutate()}
-                          className="text-xs font-medium text-navy-600 hover:text-navy-700"
-                          disabled={markAllReadMutation.isPending}
-                        >
-                          Mark all read
-                        </button>
-                      )}
-                    </div>
-                    <div className="max-h-80 overflow-y-auto">
+                      <div className="max-h-[60vh] sm:max-h-80 overflow-y-auto">
                       {notificationsLoading ? (
                         <div className="p-8 text-center">
                           <div className="animate-spin w-6 h-6 border-2 border-navy-600 border-t-transparent rounded-full mx-auto"></div>
@@ -487,7 +501,8 @@ export default function DashboardLayout({
                         </Link>
                       </div>
                     )}
-                  </div>
+                    </div>
+                  </>
                 )}
               </div>
               
