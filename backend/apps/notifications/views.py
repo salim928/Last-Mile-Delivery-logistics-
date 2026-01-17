@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 
-from apps.authentication import MerchantAuthentication
+from apps.authentication import MerchantJWTAuthentication
 from .models import Notification
 from .serializers import NotificationSerializer, NotificationMarkReadSerializer
 
@@ -24,7 +24,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     """
     
     serializer_class = NotificationSerializer
-    authentication_classes = [MerchantAuthentication]
+    authentication_classes = [MerchantJWTAuthentication]
     permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'post', 'delete']
     
