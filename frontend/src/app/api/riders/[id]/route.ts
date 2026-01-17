@@ -42,6 +42,60 @@ export async function GET(
   }
 }
 
+// POST /api/riders/[id]?action=set-pin - Set rider PIN
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const { searchParams } = new URL(request.url);
+    const action = searchParams.get('action');
+    
+    const authHeader = request.headers.get('Authorization');
+    
+    if (!authHeader) {
+      return NextResponse.json(
+        { detail: 'Authorization header required' },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+
+    // Handle set-pin action
+    if (action === 'set-pin') {
+      const response = await fetch(`${BACKEND_URL}/api/v1/riders/${id}/set-pin/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': authHeader,
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return NextResponse.json(data, { status: response.status });
+      }
+
+      return NextResponse.json(data);
+    }
+
+    return NextResponse.json(
+      { detail: 'Invalid action' },
+      { status: 400 }
+    );
+  } catch (error) {
+    console.error('Rider action API error:', error);
+    return NextResponse.json(
+      { detail: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
 // PATCH /api/riders/[id] - Update rider
 export async function PATCH(
   request: NextRequest,

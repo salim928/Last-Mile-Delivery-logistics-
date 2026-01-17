@@ -247,7 +247,8 @@ class ApiClient {
   }
 
   async setRiderPin(riderId: number, pin: string) {
-    const response = await this.client.post(`/riders/${riderId}/set-pin`, { pin });
+    // Use action query parameter instead of nested route
+    const response = await this.client.post(`/riders/${riderId}?action=set-pin`, { pin });
     return response.data;
   }
 
