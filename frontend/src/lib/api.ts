@@ -226,6 +226,11 @@ class ApiClient {
     return response.data;
   }
 
+  async getRiderById(id: number) {
+    const response = await this.client.get(`/riders/${id}`);
+    return response.data;
+  }
+
   async deleteRider(id: number) {
     await this.client.delete(`/riders/${id}`);
   }

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/api';
 import {
   ArrowLeft,
   Star,
@@ -14,151 +14,19 @@ import {
   Wallet,
   Award,
   Calendar,
-  MapPin,
   Phone,
-  Mail,
-  Shield,
-  Zap,
   Target,
-  ThumbsUp,
   AlertTriangle,
   CheckCircle2,
   XCircle,
-  Loader2
+  Loader2,
+  Bike,
+  Truck
 } from 'lucide-react';
 import {
   AreaChart, Area, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell
+  Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell
 } from 'recharts';
-
-// Types
-interface RiderPerformance {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  photo?: string;
-  vehicleType: 'motorcycle' | 'bicycle' | 'van';
-  joinedDate: string;
-  status: 'active' | 'inactive' | 'suspended';
-  zone: string;
-  metrics: {
-    totalDeliveries: number;
-    successfulDeliveries: number;
-    failedDeliveries: number;
-    onTimeRate: number;
-    avgDeliveryTime: number; // minutes
-    codAccuracy: number;
-    customerRating: number;
-    totalEarnings: number;
-    thisMonthEarnings: number;
-    totalDistance: number; // km
-    avgDeliveriesPerDay: number;
-  };
-  rankings: {
-    overall: number;
-    totalRiders: number;
-    zone: number;
-    zoneTotal: number;
-  };
-  badges: {
-    id: string;
-    name: string;
-    icon: string;
-    earnedAt: string;
-  }[];
-  recentPerformance: {
-    date: string;
-    deliveries: number;
-    onTime: number;
-    rating: number;
-  }[];
-  skillsRadar: {
-    skill: string;
-    value: number;
-    fullMark: number;
-  }[];
-  hourlyActivity: {
-    hour: string;
-    deliveries: number;
-  }[];
-  monthlyTrend: {
-    month: string;
-    deliveries: number;
-    earnings: number;
-    rating: number;
-  }[];
-}
-
-// Mock data generator
-const generateMockRiderData = (id: string): RiderPerformance => {
-  const hash = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const names = ['Kwame Asante', 'Ama Serwaa', 'Kofi Mensah', 'Akua Boateng', 'Yaw Owusu'];
-  const zones = ['Osu-Cantonments', 'East Legon', 'Tema', 'Accra Central', 'Madina'];
-  
-  return {
-    id,
-    name: names[hash % names.length],
-    email: `rider${hash % 100}@movva.gh`,
-    phone: `+233 ${20 + (hash % 10)} ${String(hash % 1000).padStart(3, '0')} ${String((hash * 7) % 10000).padStart(4, '0')}`,
-    vehicleType: ['motorcycle', 'bicycle', 'van'][hash % 3] as RiderPerformance['vehicleType'],
-    joinedDate: '2023-06-15',
-    status: 'active',
-    zone: zones[hash % zones.length],
-    metrics: {
-      totalDeliveries: 1200 + (hash % 500),
-      successfulDeliveries: 1150 + (hash % 450),
-      failedDeliveries: 50 + (hash % 50),
-      onTimeRate: 85 + (hash % 12),
-      avgDeliveryTime: 25 + (hash % 15),
-      codAccuracy: 95 + (hash % 5),
-      customerRating: 4.2 + (hash % 8) * 0.1,
-      totalEarnings: 15000 + (hash % 10000),
-      thisMonthEarnings: 2500 + (hash % 1500),
-      totalDistance: 5000 + (hash % 3000),
-      avgDeliveriesPerDay: 12 + (hash % 8)
-    },
-    rankings: {
-      overall: (hash % 20) + 1,
-      totalRiders: 150,
-      zone: (hash % 10) + 1,
-      zoneTotal: 35
-    },
-    badges: [
-      { id: 'speed_demon', name: 'Speed Demon', icon: '⚡', earnedAt: '2024-01-10' },
-      { id: 'perfect_week', name: 'Perfect Week', icon: '🏆', earnedAt: '2024-01-08' },
-      { id: 'cod_master', name: 'COD Master', icon: '💰', earnedAt: '2023-12-20' },
-      { id: 'five_star', name: '5-Star Rider', icon: '⭐', earnedAt: '2023-11-15' },
-      { id: 'marathon', name: 'Marathon Runner', icon: '🏃', earnedAt: '2023-10-01' }
-    ].slice(0, 3 + (hash % 3)),
-    recentPerformance: Array.from({ length: 14 }, (_, i) => ({
-      date: new Date(Date.now() - (13 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      deliveries: 10 + Math.floor(Math.random() * 10),
-      onTime: 80 + Math.floor(Math.random() * 18),
-      rating: 4.0 + Math.random() * 0.9
-    })),
-    skillsRadar: [
-      { skill: 'Speed', value: 75 + (hash % 20), fullMark: 100 },
-      { skill: 'Accuracy', value: 80 + (hash % 18), fullMark: 100 },
-      { skill: 'Customer Service', value: 70 + (hash % 25), fullMark: 100 },
-      { skill: 'COD Handling', value: 85 + (hash % 14), fullMark: 100 },
-      { skill: 'Reliability', value: 78 + (hash % 20), fullMark: 100 },
-      { skill: 'Navigation', value: 82 + (hash % 16), fullMark: 100 }
-    ],
-    hourlyActivity: Array.from({ length: 12 }, (_, i) => ({
-      hour: `${8 + i}:00`,
-      deliveries: Math.floor(Math.random() * 8) + 2
-    })),
-    monthlyTrend: [
-      { month: 'Aug', deliveries: 180, earnings: 2200, rating: 4.3 },
-      { month: 'Sep', deliveries: 195, earnings: 2400, rating: 4.4 },
-      { month: 'Oct', deliveries: 210, earnings: 2600, rating: 4.5 },
-      { month: 'Nov', deliveries: 225, earnings: 2800, rating: 4.5 },
-      { month: 'Dec', deliveries: 250, earnings: 3200, rating: 4.6 },
-      { month: 'Jan', deliveries: 240, earnings: 3000, rating: 4.7 }
-    ]
-  };
-};
 
 // Metric Card Component
 const MetricCard = ({ 
@@ -268,187 +136,220 @@ export default function RiderPerformancePage() {
   const params = useParams();
   const router = useRouter();
   const riderId = params.id as string;
-  const [rider, setRider] = useState<RiderPerformance | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchRiderData = async () => {
-      setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setRider(generateMockRiderData(riderId));
-      setLoading(false);
-    };
-    fetchRiderData();
-  }, [riderId]);
+  // Fetch real rider data from API
+  const { data: rider, isLoading, error } = useQuery({
+    queryKey: ['rider', riderId],
+    queryFn: () => api.getRiderById(parseInt(riderId)),
+  });
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-orange-500 mx-auto mb-3" />
+          <p className="text-slate-500">Loading rider data...</p>
+        </div>
       </div>
     );
   }
 
-  if (!rider) {
+  if (error || !rider) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 dark:text-gray-400">Rider not found</p>
+        <AlertTriangle className="w-12 h-12 text-amber-500 mx-auto mb-3" />
+        <p className="text-slate-900 font-medium mb-2">Rider not found</p>
+        <p className="text-slate-500 text-sm mb-4">The rider you're looking for doesn't exist or has been removed.</p>
+        <button
+          onClick={() => router.back()}
+          className="btn-secondary"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Go Back
+        </button>
       </div>
     );
   }
 
+  // Calculate metrics from real data
+  const successRate = rider.total_deliveries > 0 
+    ? Math.round((rider.successful_deliveries / rider.total_deliveries) * 100) 
+    : 0;
+  const failedDeliveries = rider.total_deliveries - rider.successful_deliveries;
+  const onTimeRate = 85 + (parseInt(riderId) % 12); // Simulated for now
+  const codAccuracy = 95 + (parseInt(riderId) % 5); // Simulated for now
+  
   const overallScore = Math.round(
-    (rider.metrics.onTimeRate * 0.3 +
-    rider.metrics.codAccuracy * 0.25 +
-    (rider.metrics.customerRating / 5) * 100 * 0.25 +
-    (rider.metrics.successfulDeliveries / rider.metrics.totalDeliveries) * 100 * 0.2)
+    (onTimeRate * 0.3 +
+    codAccuracy * 0.25 +
+    (rider.average_rating / 5) * 100 * 0.25 +
+    successRate * 0.2)
   );
+
+  // Generate mock performance data based on rider stats
+  const recentPerformance = Array.from({ length: 14 }, (_, i) => ({
+    date: new Date(Date.now() - (13 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    deliveries: Math.max(0, Math.floor((rider.total_deliveries / 30) * (0.5 + Math.random()))),
+    onTime: onTimeRate + Math.floor(Math.random() * 10) - 5,
+    rating: Math.min(5, Math.max(3, rider.average_rating + (Math.random() - 0.5)))
+  }));
+
+  const skillsRadar = [
+    { skill: 'Speed', value: 70 + (parseInt(riderId) % 25), fullMark: 100 },
+    { skill: 'Accuracy', value: successRate, fullMark: 100 },
+    { skill: 'Service', value: Math.round(rider.average_rating * 20), fullMark: 100 },
+    { skill: 'COD', value: codAccuracy, fullMark: 100 },
+    { skill: 'Reliability', value: onTimeRate, fullMark: 100 },
+    { skill: 'Navigation', value: 75 + (parseInt(riderId) % 20), fullMark: 100 }
+  ];
+
+  const monthlyTrend = [
+    { month: 'Aug', deliveries: Math.floor(rider.total_deliveries * 0.12), earnings: 2200 },
+    { month: 'Sep', deliveries: Math.floor(rider.total_deliveries * 0.14), earnings: 2400 },
+    { month: 'Oct', deliveries: Math.floor(rider.total_deliveries * 0.16), earnings: 2600 },
+    { month: 'Nov', deliveries: Math.floor(rider.total_deliveries * 0.18), earnings: 2800 },
+    { month: 'Dec', deliveries: Math.floor(rider.total_deliveries * 0.20), earnings: 3200 },
+    { month: 'Jan', deliveries: Math.floor(rider.total_deliveries * 0.20), earnings: 3000 }
+  ];
+
+  const hourlyActivity = Array.from({ length: 12 }, (_, i) => ({
+    hour: `${8 + i}:00`,
+    deliveries: Math.floor(Math.random() * 8) + 2
+  }));
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 sm:gap-4">
         <button
           onClick={() => router.back()}
-          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          className="p-2 hover:bg-slate-100 rounded-lg transition-colors flex-shrink-0"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Rider Performance</h1>
-          <p className="text-gray-500 dark:text-gray-400">Detailed analytics and metrics</p>
+          <h1 className="text-lg sm:text-2xl font-bold text-slate-900">Rider Performance</h1>
+          <p className="text-slate-500 text-sm sm:text-base">Detailed analytics and metrics</p>
         </div>
       </div>
 
       {/* Rider Profile Card */}
-      <div className="bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl p-6 text-white">
-        <div className="flex flex-col md:flex-row md:items-center gap-6">
-          <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center text-4xl font-bold">
+      <div className="bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl p-4 sm:p-6 text-white">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+          <div className="w-16 h-16 sm:w-24 sm:h-24 bg-white/20 rounded-full flex items-center justify-center text-2xl sm:text-4xl font-bold flex-shrink-0">
             {rider.name.charAt(0)}
           </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <h2 className="text-2xl font-bold">{rider.name}</h2>
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                rider.status === 'active' ? 'bg-green-500/20 text-green-100' :
-                rider.status === 'inactive' ? 'bg-gray-500/20 text-gray-100' :
-                'bg-red-500/20 text-red-100'
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+              <h2 className="text-xl sm:text-2xl font-bold truncate">{rider.name}</h2>
+              <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${
+                rider.status === 'available' ? 'bg-green-500/20 text-green-100' :
+                rider.status === 'on_route' ? 'bg-blue-500/20 text-blue-100' :
+                'bg-gray-500/20 text-gray-100'
               }`}>
-                {rider.status.charAt(0).toUpperCase() + rider.status.slice(1)}
+                {rider.status === 'on_route' ? 'On Route' : rider.status?.charAt(0).toUpperCase() + rider.status?.slice(1)}
               </span>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-white/80">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm text-white/80">
               <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                {rider.zone}
+                <Phone className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span className="truncate">{rider.phone_number}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4" />
-                {rider.phone}
+                {rider.vehicle_type === 'van' ? (
+                  <Truck className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                ) : (
+                  <Bike className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                )}
+                <span className="capitalize">{rider.vehicle_type}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Joined {new Date(rider.joinedDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-              </div>
-              <div className="flex items-center gap-2">
-                <Navigation className="w-4 h-4" />
-                {rider.vehicleType.charAt(0).toUpperCase() + rider.vehicleType.slice(1)}
-              </div>
+              {rider.vehicle_registration && (
+                <div className="flex items-center gap-2 col-span-2 sm:col-span-1">
+                  <Navigation className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                  <span className="font-mono text-xs">{rider.vehicle_registration}</span>
+                </div>
+              )}
             </div>
           </div>
-          <div className="flex flex-col items-center bg-white/10 rounded-xl p-4">
-            <div className="flex items-center gap-1 text-3xl font-bold">
-              <Star className="w-8 h-8 text-yellow-300 fill-yellow-300" />
-              {rider.metrics.customerRating.toFixed(1)}
+          <div className="flex flex-row sm:flex-col items-center justify-center gap-2 bg-white/10 rounded-xl p-3 sm:p-4">
+            <div className="flex items-center gap-1 text-xl sm:text-3xl font-bold">
+              <Star className="w-5 h-5 sm:w-8 sm:h-8 text-yellow-300 fill-yellow-300" />
+              {(rider.average_rating || 0).toFixed(1)}
             </div>
-            <p className="text-sm text-white/80">Customer Rating</p>
+            <p className="text-xs sm:text-sm text-white/80">Rating</p>
           </div>
-        </div>
-
-        {/* Badges */}
-        <div className="mt-6 flex flex-wrap gap-2">
-          {rider.badges.map(badge => (
-            <div
-              key={badge.id}
-              className="flex items-center gap-2 bg-white/10 rounded-full px-4 py-2"
-              title={`Earned on ${new Date(badge.earnedAt).toLocaleDateString()}`}
-            >
-              <span className="text-xl">{badge.icon}</span>
-              <span className="text-sm font-medium">{badge.name}</span>
-            </div>
-          ))}
         </div>
       </div>
 
       {/* Performance Scores */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="col-span-2 md:col-span-1 bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        <div className="col-span-2 sm:col-span-1 bg-white rounded-xl p-4 sm:p-6 border border-slate-100 flex flex-col items-center justify-center">
           <PerformanceScore score={overallScore} label="Overall Score" />
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center">
-          <PerformanceScore score={rider.metrics.onTimeRate} label="On-Time Rate" />
+        <div className="bg-white rounded-xl p-3 sm:p-4 border border-slate-100 flex flex-col items-center justify-center">
+          <PerformanceScore score={onTimeRate} label="On-Time Rate" />
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center">
-          <PerformanceScore score={rider.metrics.codAccuracy} label="COD Accuracy" />
+        <div className="bg-white rounded-xl p-3 sm:p-4 border border-slate-100 flex flex-col items-center justify-center">
+          <PerformanceScore score={codAccuracy} label="COD Accuracy" />
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center">
-          <PerformanceScore score={Math.round((rider.metrics.successfulDeliveries / rider.metrics.totalDeliveries) * 100)} label="Success Rate" />
+        <div className="bg-white rounded-xl p-3 sm:p-4 border border-slate-100 flex flex-col items-center justify-center">
+          <PerformanceScore score={successRate} label="Success Rate" />
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center">
+        <div className="bg-white rounded-xl p-3 sm:p-4 border border-slate-100 flex flex-col items-center justify-center">
           <div className="text-center">
-            <div className="text-3xl font-bold text-gray-900 dark:text-white">#{rider.rankings.overall}</div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">of {rider.rankings.totalRiders}</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500">Overall Rank</p>
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900">{rider.total_deliveries || 0}</div>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">Total</p>
+            <p className="text-xs text-slate-400">Deliveries</p>
           </div>
         </div>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <MetricCard
           icon={Package}
           label="Total Deliveries"
-          value={rider.metrics.totalDeliveries.toLocaleString()}
-          subValue={`${rider.metrics.avgDeliveriesPerDay}/day avg`}
+          value={(rider.total_deliveries || 0).toLocaleString()}
+          subValue={`${rider.completed_deliveries || 0} completed`}
           color="from-orange-500 to-amber-500"
         />
         <MetricCard
           icon={Clock}
-          label="Avg Delivery Time"
-          value={`${rider.metrics.avgDeliveryTime} min`}
-          trend={{ value: 8, isPositive: true }}
+          label="Status"
+          value={rider.status === 'on_route' ? 'On Route' : (rider.status?.charAt(0).toUpperCase() + rider.status?.slice(1)) || 'N/A'}
           color="from-orange-500 to-amber-500"
         />
         <MetricCard
           icon={Wallet}
-          label="This Month"
-          value={`GH₵ ${rider.metrics.thisMonthEarnings.toLocaleString()}`}
-          subValue={`Total: GH₵ ${rider.metrics.totalEarnings.toLocaleString()}`}
+          label="COD Collected"
+          value={`GH₵ ${(rider.cod_collected || 0).toLocaleString()}`}
+          subValue={`GH₵ ${(rider.cod_remitted || 0).toLocaleString()} remitted`}
           color="from-green-500 to-emerald-500"
         />
         <MetricCard
           icon={Navigation}
-          label="Distance Covered"
-          value={`${(rider.metrics.totalDistance / 1000).toFixed(1)}k km`}
+          label="Vehicle"
+          value={(rider.vehicle_type?.charAt(0).toUpperCase() + rider.vehicle_type?.slice(1)) || 'N/A'}
+          subValue={rider.vehicle_registration || 'No registration'}
           color="from-orange-500 to-amber-500"
         />
       </div>
 
       {/* Charts Row */}
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Skills Radar */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-xl p-4 sm:p-6 border border-slate-100">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <Target className="w-5 h-5 text-purple-500" />
             Skills Assessment
           </h3>
-          <div className="h-72">
+          <div className="h-56 sm:h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={rider.skillsRadar}>
+              <RadarChart data={skillsRadar}>
                 <PolarGrid stroke="#e5e7eb" />
                 <PolarAngleAxis 
                   dataKey="skill" 
-                  tick={{ fill: '#6b7280', fontSize: 12 }}
+                  tick={{ fill: '#6b7280', fontSize: 10 }}
                 />
                 <PolarRadiusAxis 
                   angle={30} 
@@ -470,14 +371,14 @@ export default function RiderPerformancePage() {
         </div>
 
         {/* Monthly Trend */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-xl p-4 sm:p-6 border border-slate-100">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-green-500" />
             Monthly Performance
           </h3>
-          <div className="h-72">
+          <div className="h-56 sm:h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={rider.monthlyTrend}>
+              <AreaChart data={monthlyTrend}>
                 <defs>
                   <linearGradient id="deliveriesGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#f97316" stopOpacity={0.3}/>
@@ -485,10 +386,10 @@ export default function RiderPerformancePage() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="month" tick={{ fill: '#6b7280', fontSize: 12 }} />
-                <YAxis tick={{ fill: '#6b7280', fontSize: 12 }} />
+                <XAxis dataKey="month" tick={{ fill: '#6b7280', fontSize: 10 }} />
+                <YAxis tick={{ fill: '#6b7280', fontSize: 10 }} />
                 <Tooltip content={<CustomTooltip />} />
-                <Legend />
+                <Legend wrapperStyle={{ fontSize: '12px' }} />
                 <Area
                   type="monotone"
                   dataKey="deliveries"
@@ -512,21 +413,21 @@ export default function RiderPerformancePage() {
       </div>
 
       {/* Recent Performance Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+      <div className="bg-white rounded-xl p-4 sm:p-6 border border-slate-100">
+        <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
           <Calendar className="w-5 h-5 text-blue-500" />
           Last 14 Days Performance
         </h3>
-        <div className="h-64">
+        <div className="h-48 sm:h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={rider.recentPerformance}>
+            <BarChart data={recentPerformance}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis 
                 dataKey="date" 
-                tick={{ fill: '#6b7280', fontSize: 10 }}
+                tick={{ fill: '#6b7280', fontSize: 9 }}
                 tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
               />
-              <YAxis tick={{ fill: '#6b7280', fontSize: 12 }} />
+              <YAxis tick={{ fill: '#6b7280', fontSize: 10 }} />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="deliveries" name="Deliveries" fill="#f97316" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -535,80 +436,80 @@ export default function RiderPerformancePage() {
       </div>
 
       {/* Delivery Breakdown */}
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="bg-white rounded-xl p-4 sm:p-6 border border-slate-100">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-              <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
+            <div className="p-2 bg-green-100 rounded-lg">
+              <CheckCircle2 className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {rider.metrics.successfulDeliveries.toLocaleString()}
+              <p className="text-xl sm:text-2xl font-bold text-slate-900">
+                {(rider.completed_deliveries || 0).toLocaleString()}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Successful Deliveries</p>
+              <p className="text-xs sm:text-sm text-slate-500">Successful Deliveries</p>
             </div>
           </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div className="w-full bg-slate-200 rounded-full h-2">
             <div 
               className="bg-green-500 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${(rider.metrics.successfulDeliveries / rider.metrics.totalDeliveries) * 100}%` }}
+              style={{ width: `${successRate}%` }}
             />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+        <div className="bg-white rounded-xl p-4 sm:p-6 border border-slate-100">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
-              <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+            <div className="p-2 bg-red-100 rounded-lg">
+              <XCircle className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                {rider.metrics.failedDeliveries}
+              <p className="text-xl sm:text-2xl font-bold text-slate-900">
+                {failedDeliveries}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Failed Deliveries</p>
+              <p className="text-xs sm:text-sm text-slate-500">Failed Deliveries</p>
             </div>
           </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div className="w-full bg-slate-200 rounded-full h-2">
             <div 
               className="bg-red-500 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${(rider.metrics.failedDeliveries / rider.metrics.totalDeliveries) * 100}%` }}
+              style={{ width: `${rider.total_deliveries > 0 ? (failedDeliveries / rider.total_deliveries) * 100 : 0}%` }}
             />
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+        <div className="bg-white rounded-xl p-4 sm:p-6 border border-slate-100 sm:col-span-2 lg:col-span-1">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-              <Award className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <Award className="w-5 h-5 text-purple-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                #{rider.rankings.zone}
+              <p className="text-xl sm:text-2xl font-bold text-slate-900">
+                {(rider.average_rating || 0).toFixed(1)} ⭐
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Zone Ranking</p>
+              <p className="text-xs sm:text-sm text-slate-500">Average Rating</p>
             </div>
           </div>
-          <p className="text-xs text-gray-400 dark:text-gray-500">
-            Out of {rider.rankings.zoneTotal} riders in {rider.zone}
+          <p className="text-xs text-slate-400">
+            Based on customer feedback
           </p>
         </div>
       </div>
 
       {/* Hourly Activity */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+      <div className="bg-white rounded-xl p-4 sm:p-6 border border-slate-100">
+        <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
           <Clock className="w-5 h-5 text-orange-500" />
           Peak Activity Hours
         </h3>
-        <div className="h-48">
+        <div className="h-40 sm:h-48">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={rider.hourlyActivity}>
+            <BarChart data={hourlyActivity}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="hour" tick={{ fill: '#6b7280', fontSize: 11 }} />
-              <YAxis tick={{ fill: '#6b7280', fontSize: 12 }} />
+              <XAxis dataKey="hour" tick={{ fill: '#6b7280', fontSize: 9 }} />
+              <YAxis tick={{ fill: '#6b7280', fontSize: 10 }} />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="deliveries" name="Deliveries" radius={[4, 4, 0, 0]}>
-                {rider.hourlyActivity.map((entry, index) => (
+                {hourlyActivity.map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 
                     fill={entry.deliveries > 6 ? '#f97316' : '#fed7aa'} 
