@@ -241,11 +241,29 @@ def create_proof_of_delivery(request):
     if data.get('failure_reason'):
         order.status = OrderStatus.FAILED
         order.delivery_attempts += 1
+        
+        # Notify about failed delivery
+        try:
+            from apps.notifications.models import Notification
+            Notification.notify_order_failed(order, data.get('failure_reason', ''))
+        except Exception:
+            pass
     else:
         order.status = OrderStatus.DELIVERED
         order.actual_delivery_time = timezone.now()
         order.cod_collected = data.get('cod_amount_collected', 0.0)
         order.cod_collected_at = timezone.now() if order.is_cod else None
+        
+        # Notify about successful delivery
+        try:
+            from apps.notifications.models import Notification
+            Notification.notify_order_delivered(order)
+            
+            # Notify about COD collection if applicable
+            if order.is_cod and data.get('cod_amount_collected', 0) > 0:
+                Notification.notify_cod_collected(order, data.get('cod_amount_collected', 0))
+        except Exception:
+            pass
     
     order.save()
     

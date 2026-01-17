@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'apps.pod',
     'apps.reports',
     'apps.pilots',
+    'apps.notifications',
 ]
 
 MIDDLEWARE = [

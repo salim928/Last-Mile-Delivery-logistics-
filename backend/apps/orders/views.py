@@ -2,6 +2,7 @@
 Orders API views.
 """
 import csv
+import logging
 from io import StringIO
 from datetime import date
 from django.db import transaction
@@ -19,6 +20,8 @@ from .serializers import (
     OrderBulkResponseSerializer
 )
 from apps.services.geocoding import geocoding_service
+
+logger = logging.getLogger(__name__)
 
 
 class OrderViewSet(viewsets.ViewSet):
@@ -73,6 +76,13 @@ class OrderViewSet(viewsets.ViewSet):
             )
         
         order.save()
+        
+        # Create notification for new order
+        try:
+            from apps.notifications.models import Notification
+            Notification.notify_order_created(order)
+        except Exception as e:
+            logger.warning(f"Failed to create order notification: {e}")
         
         return Response(
             OrderResponseSerializer(order).data,

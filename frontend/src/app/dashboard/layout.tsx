@@ -3,7 +3,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore, useUIStore } from '@/lib/store';
+import api from '@/lib/api';
 import {
   Truck,
   LayoutDashboard,
@@ -24,9 +26,47 @@ import {
   Sun,
   HelpCircle,
   BarChart3,
+  CheckCircle,
+  AlertTriangle,
+  Info,
 } from 'lucide-react';
 import clsx from 'clsx';
 import FeedbackWidget from '@/components/ui/FeedbackWidget';
+
+// Notification icon mapping
+const notificationIcons: Record<string, any> = {
+  package: Package,
+  route: Route,
+  users: Users,
+  'check-circle': CheckCircle,
+  info: Info,
+  wallet: Wallet,
+  'alert-triangle': AlertTriangle,
+  bell: Bell,
+};
+
+// Notification color mapping
+const notificationColors: Record<string, string> = {
+  order: 'bg-green-100 text-green-600',
+  route: 'bg-blue-100 text-blue-600',
+  rider: 'bg-purple-100 text-purple-600',
+  pod: 'bg-emerald-100 text-emerald-600',
+  system: 'bg-slate-100 text-slate-600',
+  payment: 'bg-amber-100 text-amber-600',
+  alert: 'bg-red-100 text-red-600',
+};
+
+interface Notification {
+  id: number;
+  notification_type: string;
+  priority: string;
+  title: string;
+  message: string;
+  is_read: boolean;
+  time_ago: string;
+  icon_type: string;
+  created_at: string;
+}
 
 const navItems = [
   { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, color: 'from-orange-500 to-amber-500' },
@@ -46,10 +86,47 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
   const { merchant, isAuthenticated, isHydrated, logout } = useAuthStore();
   const { sidebarOpen, toggleSidebar } = useUIStore();
   const [searchFocused, setSearchFocused] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+
+  // Fetch notifications
+  const { data: notificationsData, isLoading: notificationsLoading } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: () => api.getNotifications({ limit: 10 }),
+    enabled: isAuthenticated && isHydrated,
+    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 10000,
+  });
+
+  const notifications: Notification[] = notificationsData?.notifications || [];
+  const unreadCount = notificationsData?.unread_count || 0;
+
+  // Mark notification as read mutation
+  const markReadMutation = useMutation({
+    mutationFn: (id: number) => api.markNotificationRead(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+
+  // Mark all as read mutation
+  const markAllReadMutation = useMutation({
+    mutationFn: () => api.markAllNotificationsRead(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+
+  // Handle notification click
+  const handleNotificationClick = (notification: Notification) => {
+    if (!notification.is_read) {
+      markReadMutation.mutate(notification.id);
+    }
+    setNotificationsOpen(false);
+  };
 
   // Prefetch common routes on mount for faster navigation
   useEffect(() => {
@@ -314,49 +391,102 @@ export default function DashboardLayout({
                   aria-label="Notifications"
                 >
                   <Bell className="w-5 h-5" />
-                  <span className="absolute top-2 right-2 flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                  </span>
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex items-center justify-center rounded-full h-4 w-4 bg-red-500 text-[10px] font-bold text-white">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    </span>
+                  )}
                 </button>
                 
                 {/* Notification dropdown */}
                 {notificationsOpen && (
-                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-strong border border-slate-200 overflow-hidden animate-slide-down z-50">
-                    <div className="p-4 border-b border-slate-100">
-                      <h3 className="font-semibold text-slate-900">Notifications</h3>
-                    </div>
-                    <div className="max-h-64 overflow-y-auto">
-                      <div className="p-4 hover:bg-slate-50 cursor-pointer border-b border-slate-100">
-                        <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <Package className="w-4 h-4 text-green-600" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-slate-900">Route Optimized</p>
-                            <p className="text-xs text-slate-500 mt-0.5">Your morning route saved 15% on fuel</p>
-                            <p className="text-2xs text-slate-400 mt-1">2 minutes ago</p>
-                          </div>
-                        </div>
+                  <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-strong border border-slate-200 overflow-hidden animate-slide-down z-50">
+                    <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold text-slate-900">Notifications</h3>
+                        {unreadCount > 0 && (
+                          <p className="text-xs text-slate-500">{unreadCount} unread</p>
+                        )}
                       </div>
-                      <div className="p-4 hover:bg-slate-50 cursor-pointer">
-                        <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <Users className="w-4 h-4 text-blue-600" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-slate-900">New Rider Available</p>
-                            <p className="text-xs text-slate-500 mt-0.5">John Doe is now online</p>
-                            <p className="text-2xs text-slate-400 mt-1">15 minutes ago</p>
-                          </div>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={() => markAllReadMutation.mutate()}
+                          className="text-xs font-medium text-navy-600 hover:text-navy-700"
+                          disabled={markAllReadMutation.isPending}
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                    </div>
+                    <div className="max-h-80 overflow-y-auto">
+                      {notificationsLoading ? (
+                        <div className="p-8 text-center">
+                          <div className="animate-spin w-6 h-6 border-2 border-navy-600 border-t-transparent rounded-full mx-auto"></div>
+                          <p className="text-xs text-slate-500 mt-2">Loading...</p>
                         </div>
+                      ) : notifications.length === 0 ? (
+                        <div className="p-8 text-center">
+                          <Bell className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                          <p className="text-sm font-medium text-slate-500">No notifications yet</p>
+                          <p className="text-xs text-slate-400 mt-1">We'll notify you about important updates</p>
+                        </div>
+                      ) : (
+                        notifications.map((notification, index) => {
+                          const IconComponent = notificationIcons[notification.icon_type] || Bell;
+                          const colorClass = notificationColors[notification.notification_type] || 'bg-slate-100 text-slate-600';
+                          
+                          return (
+                            <div 
+                              key={notification.id}
+                              onClick={() => handleNotificationClick(notification)}
+                              className={clsx(
+                                'p-4 hover:bg-slate-50 cursor-pointer transition-colors',
+                                index < notifications.length - 1 && 'border-b border-slate-100',
+                                !notification.is_read && 'bg-navy-50/30'
+                              )}
+                            >
+                              <div className="flex items-start gap-3">
+                                <div className={clsx(
+                                  'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0',
+                                  colorClass
+                                )}>
+                                  <IconComponent className="w-4 h-4" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <p className={clsx(
+                                      'text-sm text-slate-900 truncate',
+                                      !notification.is_read && 'font-semibold'
+                                    )}>
+                                      {notification.title}
+                                    </p>
+                                    {!notification.is_read && (
+                                      <span className="w-2 h-2 bg-navy-600 rounded-full flex-shrink-0 mt-1.5"></span>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{notification.message}</p>
+                                  <p className="text-2xs text-slate-400 mt-1">{notification.time_ago}</p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                    {notifications.length > 0 && (
+                      <div className="p-3 bg-slate-50 border-t border-slate-100">
+                        <Link 
+                          href="/dashboard/notifications"
+                          onClick={() => setNotificationsOpen(false)}
+                          className="block w-full text-center text-xs font-semibold text-navy-600 hover:text-navy-700"
+                        >
+                          View all notifications
+                        </Link>
                       </div>
-                    </div>
-                    <div className="p-3 bg-slate-50 border-t border-slate-100">
-                      <button className="w-full text-center text-xs font-semibold text-navy-600 hover:text-navy-700">
-                        View all notifications
-                      </button>
-                    </div>
+                    )}
                   </div>
                 )}
               </div>

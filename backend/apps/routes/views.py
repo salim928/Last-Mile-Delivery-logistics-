@@ -295,6 +295,14 @@ class RouteViewSet(viewsets.ViewSet):
                     route_stop_sequence=detail["sequence"]
                 )
         
+        # Create notification for route optimization
+        try:
+            from apps.notifications.models import Notification
+            Notification.notify_route_optimized(route)
+        except Exception as e:
+            import logging
+            logging.warning(f"Failed to create route optimization notification: {e}")
+        
         route = Route.objects.prefetch_related('stops', 'stops__order').get(id=route.id)
         return Response(RouteResponseSerializer(route).data)
     

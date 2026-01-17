@@ -349,6 +349,32 @@ class ApiClient {
     return response.data;
   }
 
+  // Notifications
+  async getNotifications(params?: { limit?: number; is_read?: boolean; type?: string }) {
+    const response = await this.client.get('/notifications/', { params });
+    return response.data;
+  }
+
+  async markNotificationRead(id: number) {
+    const response = await this.client.post(`/notifications/${id}/mark_read/`);
+    return response.data;
+  }
+
+  async markAllNotificationsRead() {
+    const response = await this.client.post('/notifications/mark_all_read/');
+    return response.data;
+  }
+
+  async getUnreadNotificationCount() {
+    const response = await this.client.get('/notifications/unread_count/');
+    return response.data;
+  }
+
+  async deleteNotification(id: number) {
+    const response = await this.client.delete(`/notifications/${id}/`);
+    return response.data;
+  }
+
   // Pilot Applications (public endpoints)
   async submitPilotApplication(data: {
     name: string;

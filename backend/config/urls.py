@@ -45,6 +45,7 @@ urlpatterns = [
     path('api/v1/pod/', include('apps.pod.urls')),
     path('api/v1/reports/', include('apps.reports.urls')),
     path('api/v1/pilots/', include('apps.pilots.urls')),
+    path('api/v1/notifications/', include('apps.notifications.urls')),
 ]
 
 # Serve media files in development
